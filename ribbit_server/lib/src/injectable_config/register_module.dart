@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:hellav_server/src/prisma/generated/client.dart';
 import 'package:injectable/injectable.dart';
+import 'package:ribbit_server/src/prisma/generated/client.dart';
 
 /// Used to inject third-party objects
 @module

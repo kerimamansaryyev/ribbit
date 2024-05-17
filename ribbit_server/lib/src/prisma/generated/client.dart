@@ -456,7 +456,7 @@ class PrismaClient {
     String? datasourceUrl,
     Map<String, String>? datasources,
   }) {
-    datasources ??= {'db': 'mysql://root:hello@localhost:3306/hellav_db'};
+    datasources ??= {'db': 'mysql://root:hello@localhost:5432/hellav_db'};
     if (datasourceUrl != null) {
       datasources = datasources.map((
         key,

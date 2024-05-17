@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/hellav.iml" filepath="$PROJECT_DIR$/.idea/hellav.iml" />
-      <module fileurl="file://$PROJECT_DIR$/hellav_middle_end/hellav_middle_end.iml" filepath="$PROJECT_DIR$/hellav_middle_end/hellav_middle_end.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/ribbit.iml" filepath="$PROJECT_DIR$/.idea/ribbit.iml" />
     </modules>
   </component>
 </project>
