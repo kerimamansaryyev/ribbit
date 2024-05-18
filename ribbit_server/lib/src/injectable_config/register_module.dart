@@ -14,7 +14,6 @@ abstract class RegisterModule {
         try {
           // ignore: avoid_print
           print('Connecting Prisma Client');
-          await prismaClient.$connect();
           // ignore: avoid_print
           print('Prisma Client was successfully connected');
           return prismaClient;

@@ -205,16 +205,11 @@ class UserDelegate {
     );
   }
 
-  _i1.ActionClient<_i3.AffectedRowsOutput> createMany({
-    required _i1
-        .PrismaUnion<_i3.UserCreateManyInput, Iterable<_i3.UserCreateManyInput>>
-        data,
-    bool? skipDuplicates,
-  }) {
-    final args = {
-      'data': data,
-      'skipDuplicates': skipDuplicates,
-    };
+  _i1.ActionClient<_i3.AffectedRowsOutput> createMany(
+      {required _i1.PrismaUnion<_i3.UserCreateManyInput,
+              Iterable<_i3.UserCreateManyInput>>
+          data}) {
+    final args = {'data': data};
     final query = _i1.serializeJsonQuery(
       args: args,
       modelName: 'User',
@@ -456,7 +451,10 @@ class PrismaClient {
     String? datasourceUrl,
     Map<String, String>? datasources,
   }) {
-    datasources ??= {'db': 'mysql://root:hello@localhost:3306/hellav_db'};
+    datasources ??= {
+      'db':
+          'sqlserver://localhost:1433;database=hellav;user=sa;password=HelloHello123;trustServerCertificate=true;encrypt=false'
+    };
     if (datasourceUrl != null) {
       datasources = datasources.map((
         key,
@@ -469,7 +467,7 @@ class PrismaClient {
     }
     final engine = _i4.BinaryEngine(
       schema:
-          '// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = "dart run orm"\n  output   = "../lib/src/prisma/generated"\n}\n\ndatasource db {\n  provider = "mysql"\n  url      = env("DATABASE_URL")\n}\n\nmodel User {\n  id    Int     @id\n  email String  @unique\n  name  String?\n}\n',
+          '// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider      = "dart run orm"\n  output        = "../lib/src/prisma/generated"\n  binaryTargets = ["native", "rhel-openssl-1.0.x"]\n}\n\ndatasource db {\n  provider = "sqlserver"\n  url      = env("DATABASE_URL")\n}\n\nmodel User {\n  id        Int     @id @default(autoincrement())\n  email     String  @unique\n  firstName String?\n}\n',
       datasources: datasources,
     );
     final metrics = _i1.MetricsClient(engine);
@@ -502,8 +500,12 @@ class PrismaClient {
             'isUnique': false,
             'isId': true,
             'isReadOnly': false,
-            'hasDefaultValue': false,
+            'hasDefaultValue': true,
             'type': 'Int',
+            'default': {
+              'name': 'autoincrement',
+              'args': [],
+            },
             'isGenerated': false,
             'isUpdatedAt': false,
           },
@@ -521,7 +523,7 @@ class PrismaClient {
             'isUpdatedAt': false,
           },
           {
-            'name': 'name',
+            'name': 'firstName',
             'kind': 'scalar',
             'isList': false,
             'isRequired': false,

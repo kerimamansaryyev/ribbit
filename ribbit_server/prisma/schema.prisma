@@ -6,16 +6,16 @@
 
 generator client {
   provider = "dart run orm"
-  output = "../lib/src/prisma/generated"
+  output   = "../lib/src/prisma/generated"
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "sqlserver"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id    Int     @id
-  email String  @unique
-  name  String?
+  id        String     @id @default(uuid())
+  email     String  @unique
+  firstName String?
 }
