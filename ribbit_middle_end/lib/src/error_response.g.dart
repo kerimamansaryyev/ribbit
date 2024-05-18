@@ -25,4 +25,6 @@ const _$RibbitServerErrorCodeEnumMap = {
   RibbitServerErrorCode.loginFailed: 'LOGIN_FAILED',
   RibbitServerErrorCode.invalidRequestFormat: 'INVALID_REQUEST_FORMAT',
   RibbitServerErrorCode.userAlreadyExists: 'USER_ALREADY_EXISTS',
+  RibbitServerErrorCode.unauthorized: 'UNAUTHORIZED',
+  RibbitServerErrorCode.userNotFound: 'USER_NOT_FOUNT',
 };

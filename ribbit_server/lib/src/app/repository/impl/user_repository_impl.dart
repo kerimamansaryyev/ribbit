@@ -6,8 +6,10 @@ import 'package:ribbit_server/src/app/repository/mixin/base_repository_mixin.dar
 import 'package:ribbit_server/src/app/repository/mixin/encrypted_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/user_repository.dart';
 import 'package:ribbit_server/src/app/service/result/create_user_result.dart';
+import 'package:ribbit_server/src/app/service/result/delete_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/validate_user_credentials_result.dart';
 import 'package:ribbit_server/src/prisma/generated/client.dart';
+import 'package:ribbit_server/src/prisma/generated/model.dart';
 import 'package:ribbit_server/src/prisma/generated/prisma.dart';
 
 /// Implementation of [UserRepository] via [PrismaClient]
@@ -79,4 +81,46 @@ final class UserRepositoryImpl
           );
         },
       );
+
+  @override
+  Future<User?> getUserByUserId({required String userId}) =>
+      preventConnectionLeak(
+        () => prismaClient.user.findUnique(
+          where: UserWhereUniqueInput(
+            id: userId,
+          ),
+        ),
+      );
+
+  @override
+  Future<DeleteUserResult> deleteUserById({
+    required String userId,
+  }) =>
+      preventConnectionLeak(() async {
+        final tx = await prismaClient.$transaction.start();
+        try {
+          final user = await tx.user.findUnique(
+            where: UserWhereUniqueInput(
+              id: userId,
+            ),
+          );
+
+          if (user == null) {
+            await tx.$transaction.commit();
+            return const DeleteUserNotFound();
+          }
+
+          await tx.user.delete(
+            where: UserWhereUniqueInput(
+              id: userId,
+            ),
+          );
+          await tx.$transaction.commit();
+
+          return const DeleteUserDeleted();
+        } catch (_) {
+          await tx.$transaction.rollback();
+          rethrow;
+        }
+      });
 }

@@ -2,9 +2,11 @@ import 'package:injectable/injectable.dart';
 import 'package:ribbit_server/src/app/integration/jwt_authenticator.dart';
 import 'package:ribbit_server/src/app/repository/user_repository.dart';
 import 'package:ribbit_server/src/app/service/result/create_user_result.dart';
+import 'package:ribbit_server/src/app/service/result/delete_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/login_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/validate_user_credentials_result.dart';
 import 'package:ribbit_server/src/app/service/user_service.dart';
+import 'package:ribbit_server/src/prisma/generated/model.dart';
 
 @Singleton(as: UserService)
 final class UserServiceImpl implements UserService {
@@ -47,4 +49,19 @@ final class UserServiceImpl implements UserService {
       ValidateUserCredentialsNotValid() => const LoginUserFailed(),
     };
   }
+
+  @override
+  Future<User?> verifyFromToken({required String token}) async {
+    final userId = _jwtAuthenticator.getPayloadFromToken(token: token)?.userId;
+    if (userId == null) {
+      return null;
+    }
+    return _userRepository.getUserByUserId(userId: userId);
+  }
+
+  @override
+  Future<DeleteUserResult> deleteUserById({required String userId}) =>
+      _userRepository.deleteUserById(
+        userId: userId,
+      );
 }

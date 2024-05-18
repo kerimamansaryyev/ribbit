@@ -19,4 +19,15 @@ model User {
   email     String  @unique
   password  String
   firstName String
+  reminders Reminder[]
+}
+
+model Reminder {
+  id Int @id @default(autoincrement())
+  title String @default("")
+  notes String @default("")
+  created_at DateTime @default(now())
+  remind_at DateTime
+  user User @relation(fields: [userId], references: [id])
+  userId String
 }

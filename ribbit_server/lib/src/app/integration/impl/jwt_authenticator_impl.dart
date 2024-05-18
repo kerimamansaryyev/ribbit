@@ -35,4 +35,24 @@ final class JWTAuthenticatorImpl implements JWTAuthenticator {
           'email': email,
         },
       ).sign(_jwtSecret);
+
+  @override
+  AuthenticatorPayload? getPayloadFromToken({required String token}) {
+    final payloadData = JWT.verify(token, _jwtSecret).payload;
+
+    if (payloadData is! Map) {
+      return null;
+    }
+
+    final (userId, email) = (payloadData['user_id'], payloadData['email']);
+
+    if ((userId, email) case (String(), String())) {
+      return (
+        userId: userId,
+        email: email,
+      );
+    }
+
+    return null;
+  }
 }

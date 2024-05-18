@@ -5,8 +5,10 @@ import 'package:injectable/injectable.dart';
 import 'package:ribbit_middle_end/ribbit_middle_end.dart';
 import 'package:ribbit_server/src/app/controller/mixin/base_controller_mixin.dart';
 import 'package:ribbit_server/src/app/service/result/create_user_result.dart';
+import 'package:ribbit_server/src/app/service/result/delete_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/login_user_result.dart';
 import 'package:ribbit_server/src/app/service/user_service.dart';
+import 'package:ribbit_server/src/prisma/generated/model.dart';
 
 /// Handling requests upon User
 @Singleton()
@@ -70,6 +72,36 @@ final class UserController with BaseControllerMixin {
           ),
       };
     });
+  }
+
+  Future<Response> deleteOwnUserAccount(RequestContext requestContext) {
+    return resilientResponse(
+      () async => switch (requestContext.request.method) {
+        HttpMethod.delete => switch (await _userService.deleteUserById(
+            userId: requestContext.read<User>().id!,
+          )) {
+            DeleteUserDeleted() => Response.json(
+                body: DeleteOwnUserAccountResponse(
+                  message: 'Account successfully deleted',
+                ).toJson(),
+              ),
+            DeleteUserNotFound() => Response.json(
+                statusCode: HttpStatus.notFound,
+                body: const ErrorResponse(
+                  ribbitServerErrorCode: RibbitServerErrorCode.userNotFound,
+                  message: 'User has not been found',
+                ).toJson(),
+              ),
+          },
+        _ => Response.json(
+            statusCode: HttpStatus.badRequest,
+            body: const ErrorResponse(
+              ribbitServerErrorCode: RibbitServerErrorCode.invalidRequestFormat,
+              message: 'Bad request',
+            ).toJson(),
+          )
+      },
+    );
   }
 
   Future<Response> loginUser(

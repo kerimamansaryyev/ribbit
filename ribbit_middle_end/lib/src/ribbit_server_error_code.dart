@@ -7,7 +7,9 @@ enum RibbitServerErrorCode {
   unexpectedError('UNEXPECTED_ERROR'),
   loginFailed('LOGIN_FAILED'),
   invalidRequestFormat('INVALID_REQUEST_FORMAT'),
-  userAlreadyExists('USER_ALREADY_EXISTS');
+  userAlreadyExists('USER_ALREADY_EXISTS'),
+  unauthorized('UNAUTHORIZED'),
+  userNotFound('USER_NOT_FOUNT');
 
   const RibbitServerErrorCode(
     this.readableCode,
