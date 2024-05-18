@@ -6,10 +6,12 @@ part 'create_user_request.g.dart';
 class CreateUserRequest {
   final String email;
   final String firstName;
+  final String password;
 
   const CreateUserRequest({
     required this.email,
     required this.firstName,
+    required this.password,
   });
 
   factory CreateUserRequest.fromJson(Map<String, dynamic> json) =>

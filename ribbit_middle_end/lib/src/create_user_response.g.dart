@@ -11,12 +11,11 @@ CreateUserResponse _$CreateUserResponseFromJson(Map<String, dynamic> json) =>
       user: _$recordConvert(
         json['user'],
         ($jsonValue) => (
-          email: $jsonValue['email'] as String,
-          firstName: $jsonValue['firstName'] as String,
-          userId: $jsonValue['userId'] as String,
+          email: $jsonValue['email'] as String?,
+          firstName: $jsonValue['firstName'] as String?,
+          userId: $jsonValue['userId'] as String?,
         ),
       ),
-      accessToken: json['accessToken'] as String,
     );
 
 Map<String, dynamic> _$CreateUserResponseToJson(CreateUserResponse instance) =>
@@ -26,7 +25,6 @@ Map<String, dynamic> _$CreateUserResponseToJson(CreateUserResponse instance) =>
         'firstName': instance.user.firstName,
         'userId': instance.user.userId,
       },
-      'accessToken': instance.accessToken,
     };
 
 $Rec _$recordConvert<$Rec>(

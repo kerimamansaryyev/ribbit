@@ -12,4 +12,4 @@ final appServiceLocator = GetIt.instance;
 )
 
 /// To be called before launching the server
-Future<void> configureDependencies() => appServiceLocator.init();
+Future<void> configureDependencies() async => appServiceLocator.init();
