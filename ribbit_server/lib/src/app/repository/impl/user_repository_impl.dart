@@ -3,15 +3,17 @@ import 'dart:async';
 import 'package:injectable/injectable.dart';
 import 'package:orm/orm.dart';
 import 'package:ribbit_server/src/app/repository/mixin/base_repository_mixin.dart';
-import 'package:ribbit_server/src/app/repository/result/create_user_result.dart';
+import 'package:ribbit_server/src/app/repository/mixin/encrypted_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/user_repository.dart';
+import 'package:ribbit_server/src/app/service/result/create_user_result.dart';
+import 'package:ribbit_server/src/app/service/result/validate_user_credentials_result.dart';
 import 'package:ribbit_server/src/prisma/generated/client.dart';
 import 'package:ribbit_server/src/prisma/generated/prisma.dart';
 
 /// Implementation of [UserRepository] via [PrismaClient]
 @Singleton(as: UserRepository)
 final class UserRepositoryImpl
-    with BaseRepositoryMixin
+    with BaseRepositoryMixin, EncryptedRepositoryMixin
     implements UserRepository {
   @override
   Future<CreateUserResult> createUser({
@@ -34,7 +36,7 @@ final class UserRepositoryImpl
                     data: PrismaUnion.$1(
                       UserCreateInput(
                         email: email,
-                        password: password,
+                        password: hasString(password),
                         firstName: firstName,
                       ),
                     ),
@@ -50,4 +52,31 @@ final class UserRepositoryImpl
           rethrow;
         }
       });
+
+  @override
+  Future<ValidateUserCredentialsResult> validateUserCredentials({
+    required String email,
+    required String password,
+  }) =>
+      preventConnectionLeak(
+        () async {
+          final user = await prismaClient.user.findUnique(
+            where: UserWhereUniqueInput(
+              email: email,
+            ),
+          );
+
+          final userPassword = user?.password;
+
+          if (user == null ||
+              userPassword == null ||
+              !validateString(given: password, hashed: userPassword)) {
+            return const ValidateUserCredentialsNotValid();
+          }
+
+          return ValidateUserCredentialsSucceeded(
+            user: user,
+          );
+        },
+      );
 }

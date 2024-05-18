@@ -3,19 +3,19 @@ import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:injectable/injectable.dart';
 import 'package:ribbit_middle_end/ribbit_middle_end.dart';
-import 'package:ribbit_server/src/app/repository/result/create_user_result.dart';
+import 'package:ribbit_server/src/app/controller/mixin/base_controller_mixin.dart';
+import 'package:ribbit_server/src/app/service/result/create_user_result.dart';
+import 'package:ribbit_server/src/app/service/result/login_user_result.dart';
 import 'package:ribbit_server/src/app/service/user_service.dart';
 
 /// Handling requests upon User
 @Singleton()
-final class UserController {
+final class UserController with BaseControllerMixin {
   /// Injecting dependencies
-  const UserController({
-    required this.userService,
-  });
+  const UserController(this._userService);
 
   /// Using injected UserService for CRUD
-  final UserService userService;
+  final UserService _userService;
 
   /// Creates User
   Future<Response> createUser(
@@ -38,13 +38,14 @@ final class UserController {
       return Response.json(
         statusCode: HttpStatus.badRequest,
         body: ErrorResponse(
+          ribbitServerErrorCode: RibbitServerErrorCode.invalidRequestFormat,
           message: 'Bad request: $ex',
         ).toJson(),
       );
     }
 
-    try {
-      final result = await userService.createUser(
+    return resilientResponse(() async {
+      final result = await _userService.createUser(
         email: email,
         firstName: firstName,
         password: password,
@@ -55,6 +56,7 @@ final class UserController {
             statusCode: HttpStatus.forbidden,
             body: const ErrorResponse(
               message: 'User already exists',
+              ribbitServerErrorCode: RibbitServerErrorCode.userAlreadyExists,
             ).toJson(),
           ),
         CreateUserSuccessfullyCreated(user: final user) => Response.json(
@@ -67,13 +69,57 @@ final class UserController {
             ).toJson(),
           ),
       };
+    });
+  }
+
+  Future<Response> loginUser(
+    RequestContext requestContext,
+  ) async {
+    final String email;
+    final String password;
+
+    try {
+      final createUserRequest = LoginUserRequest.fromJson(
+        await requestContext.request.json() as Map<String, dynamic>,
+      );
+      (email, password) = (
+        createUserRequest.email,
+        createUserRequest.password,
+      );
     } catch (ex) {
       return Response.json(
-        statusCode: HttpStatus.internalServerError,
-        body: const ErrorResponse(
-          message: 'Unexpected Error',
+        statusCode: HttpStatus.badRequest,
+        body: ErrorResponse(
+          ribbitServerErrorCode: RibbitServerErrorCode.invalidRequestFormat,
+          message: 'Bad request: $ex',
         ).toJson(),
       );
     }
+
+    return resilientResponse(() async {
+      final result = await _userService.loginUser(
+        email: email,
+        password: password,
+      );
+
+      return switch (result) {
+        LoginUserSuccessful() => Response.json(
+            body: LoginUserResponse(
+              user: (
+                email: result.user.email,
+                firstName: result.user.firstName,
+                userId: result.user.id,
+              ),
+              accessToken: result.accessToken,
+            ).toJson(),
+          ),
+        LoginUserFailed() => Response.json(
+            body: const ErrorResponse(
+              ribbitServerErrorCode: RibbitServerErrorCode.loginFailed,
+              message: 'Login Failed',
+            ).toJson(),
+          ),
+      };
+    });
   }
 }
