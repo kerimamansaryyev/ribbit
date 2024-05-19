@@ -9,7 +9,8 @@ enum RibbitServerErrorCode {
   invalidRequestFormat('INVALID_REQUEST_FORMAT'),
   userAlreadyExists('USER_ALREADY_EXISTS'),
   unauthorized('UNAUTHORIZED'),
-  userNotFound('USER_NOT_FOUNT');
+  userNotFound('USER_NOT_FOUNT'),
+  invalidInput('INVALID_INPUT');
 
   const RibbitServerErrorCode(
     this.readableCode,

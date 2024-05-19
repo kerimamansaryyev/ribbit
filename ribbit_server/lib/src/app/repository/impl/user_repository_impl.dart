@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:injectable/injectable.dart';
 import 'package:orm/orm.dart';
+import 'package:ribbit_server/src/app/input_validator/input_validator.dart';
 import 'package:ribbit_server/src/app/repository/mixin/base_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/mixin/encrypted_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/user_repository.dart';
@@ -32,19 +33,36 @@ final class UserRepositoryImpl
             ),
           );
 
-          final result = user == null
-              ? CreateUserSuccessfullyCreated(
-                  user: await tx.user.create(
-                    data: PrismaUnion.$1(
-                      UserCreateInput(
-                        email: email,
-                        password: hasString(password),
-                        firstName: firstName,
-                      ),
-                    ),
-                  ),
-                )
-              : const CreateUserAlreadyExists();
+          if (user != null) {
+            await tx.$transaction.commit();
+            return const CreateUserAlreadyExists();
+          }
+
+          final invalidInput = validateInputs(
+            [
+              InputValidator.email('email', email),
+              InputValidator.password('password', password),
+            ],
+          );
+
+          if (invalidInput != null) {
+            await tx.$transaction.commit();
+            return CreateUserInvalidInput(
+              fieldName: invalidInput.fieldName,
+            );
+          }
+
+          final result = CreateUserSuccessfullyCreated(
+            user: await tx.user.create(
+              data: PrismaUnion.$1(
+                UserCreateInput(
+                  email: email,
+                  password: hasString(password),
+                  firstName: firstName,
+                ),
+              ),
+            ),
+          );
 
           await tx.$transaction.commit();
 

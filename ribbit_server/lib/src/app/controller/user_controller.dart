@@ -70,6 +70,13 @@ final class UserController with BaseControllerMixin {
               ),
             ).toJson(),
           ),
+        CreateUserInvalidInput(fieldName: final fieldName) => Response.json(
+            statusCode: HttpStatus.badRequest,
+            body: ErrorResponse(
+              message: 'Invalid input on field: $fieldName',
+              ribbitServerErrorCode: RibbitServerErrorCode.invalidInput,
+            ).toJson(),
+          ),
       };
     });
   }

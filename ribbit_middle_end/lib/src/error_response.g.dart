@@ -27,4 +27,5 @@ const _$RibbitServerErrorCodeEnumMap = {
   RibbitServerErrorCode.userAlreadyExists: 'USER_ALREADY_EXISTS',
   RibbitServerErrorCode.unauthorized: 'UNAUTHORIZED',
   RibbitServerErrorCode.userNotFound: 'USER_NOT_FOUNT',
+  RibbitServerErrorCode.invalidInput: 'INVALID_INPUT',
 };
