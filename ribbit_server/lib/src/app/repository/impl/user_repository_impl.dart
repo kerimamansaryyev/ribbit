@@ -31,6 +31,9 @@ final class UserRepositoryImpl
             where: UserWhereUniqueInput(
               email: email,
             ),
+            include: const UserInclude(
+              reminders: PrismaUnion.$1(false),
+            ),
           );
 
           if (user != null) {
@@ -84,6 +87,9 @@ final class UserRepositoryImpl
             where: UserWhereUniqueInput(
               email: email,
             ),
+            include: const UserInclude(
+              reminders: PrismaUnion.$1(false),
+            ),
           );
 
           final userPassword = user?.password;
@@ -107,6 +113,9 @@ final class UserRepositoryImpl
           where: UserWhereUniqueInput(
             id: userId,
           ),
+          include: const UserInclude(
+            reminders: PrismaUnion.$1(false),
+          ),
         ),
       );
 
@@ -120,6 +129,9 @@ final class UserRepositoryImpl
           final user = await tx.user.findUnique(
             where: UserWhereUniqueInput(
               id: userId,
+            ),
+            include: const UserInclude(
+              reminders: PrismaUnion.$1(false),
             ),
           );
 

@@ -36,12 +36,21 @@ final class ReminderRepositoryImpl
             reminder: await prismaClient.reminder.create(
               data: PrismaUnion.$1(
                 ReminderCreateInput(
+                  title: title,
+                  notes: notes,
+                  remindAt: switch (remindAt) {
+                    DateTime() => PrismaUnion.$1(remindAt),
+                    null => const PrismaUnion.$2(PrismaNull()),
+                  },
                   user: UserCreateNestedOneWithoutRemindersInput(
                     connect: UserWhereUniqueInput(
                       id: userId,
                     ),
                   ),
                 ),
+              ),
+              include: const ReminderInclude(
+                user: PrismaUnion.$1(false),
               ),
             ),
           );

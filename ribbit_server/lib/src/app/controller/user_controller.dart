@@ -11,7 +11,7 @@ import 'package:ribbit_server/src/app/service/user_service.dart';
 import 'package:ribbit_server/src/prisma/generated/model.dart';
 
 /// Handling requests upon User
-@Singleton()
+@singleton
 final class UserController with BaseControllerMixin {
   /// Injecting dependencies
   const UserController(this._userService);
