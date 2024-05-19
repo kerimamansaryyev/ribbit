@@ -4,6 +4,7 @@ import 'package:ribbit_middle_end/ribbit_middle_end.dart';
 import 'package:ribbit_server/src/app/repository/mixin/base_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/reminder_repository.dart';
 import 'package:ribbit_server/src/app/service/result/create_reminder_result.dart';
+import 'package:ribbit_server/src/prisma/generated/model.dart';
 import 'package:ribbit_server/src/prisma/generated/prisma.dart';
 
 @Singleton(as: ReminderRepository)
@@ -55,5 +56,33 @@ final class ReminderRepositoryImpl
             ),
           );
         },
+      );
+
+  @override
+  Future<Iterable<Reminder>> getAllRemindersAfterNow() => preventConnectionLeak(
+        () async => prismaClient.reminder.findMany(
+          where: ReminderWhereInput(
+            NOT: const PrismaUnion.$1(
+              ReminderWhereInput(
+                remindAt: PrismaUnion.$2(
+                  PrismaUnion.$2(
+                    PrismaNull(),
+                  ),
+                ),
+              ),
+            ),
+            remindAt: PrismaUnion.$1(
+              DateTimeNullableFilter(
+                gt: PrismaUnion.$1(
+                  DateTime.now(),
+                ),
+              ),
+            ),
+          ),
+          select: const ReminderSelect(
+            id: true,
+            remindAt: true,
+          ),
+        ),
       );
 }

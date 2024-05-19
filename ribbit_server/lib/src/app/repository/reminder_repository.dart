@@ -1,4 +1,5 @@
 import 'package:ribbit_server/src/app/service/result/create_reminder_result.dart';
+import 'package:ribbit_server/src/prisma/generated/model.dart';
 
 abstract interface class ReminderRepository {
   Future<CreateReminderResult> createReminder({
@@ -7,4 +8,6 @@ abstract interface class ReminderRepository {
     required String notes,
     required DateTime? remindAt,
   });
+
+  Future<Iterable<Reminder>> getAllRemindersAfterNow();
 }

@@ -12,19 +12,21 @@ import 'package:dotenv/dotenv.dart' as _i3;
 import 'package:get_it/get_it.dart' as _i1;
 import 'package:injectable/injectable.dart' as _i2;
 
-import '../app/controller/reminder_controller.dart' as _i15;
-import '../app/controller/user_controller.dart' as _i14;
-import '../app/integration/impl/jwt_authenticator_impl.dart' as _i9;
-import '../app/integration/jwt_authenticator.dart' as _i8;
-import '../app/repository/impl/reminder_repository_impl.dart' as _i7;
-import '../app/repository/impl/user_repository_impl.dart' as _i5;
-import '../app/repository/reminder_repository.dart' as _i6;
-import '../app/repository/user_repository.dart' as _i4;
-import '../app/service/impl/reminder_service_impl.dart' as _i13;
-import '../app/service/impl/user_service_impl.dart' as _i11;
-import '../app/service/reminder_service.dart' as _i12;
-import '../app/service/user_service.dart' as _i10;
-import 'register_module.dart' as _i16;
+import '../app/controller/reminder_controller.dart' as _i16;
+import '../app/controller/user_controller.dart' as _i17;
+import '../app/integration/impl/jwt_authenticator_impl.dart' as _i11;
+import '../app/integration/impl/reminder_scheduler_impl.dart' as _i5;
+import '../app/integration/jwt_authenticator.dart' as _i10;
+import '../app/integration/reminder_scheduler.dart' as _i4;
+import '../app/repository/impl/reminder_repository_impl.dart' as _i9;
+import '../app/repository/impl/user_repository_impl.dart' as _i7;
+import '../app/repository/reminder_repository.dart' as _i8;
+import '../app/repository/user_repository.dart' as _i6;
+import '../app/service/impl/reminder_service_impl.dart' as _i15;
+import '../app/service/impl/user_service_impl.dart' as _i13;
+import '../app/service/reminder_service.dart' as _i14;
+import '../app/service/user_service.dart' as _i12;
+import 'register_module.dart' as _i18;
 
 extension GetItInjectableX on _i1.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
@@ -39,24 +41,27 @@ extension GetItInjectableX on _i1.GetIt {
     );
     final registerModule = _$RegisterModule();
     gh.singleton<_i3.DotEnv>(() => registerModule.dotEnv);
-    gh.singleton<_i4.UserRepository>(() => _i5.UserRepositoryImpl());
-    gh.singleton<_i6.ReminderRepository>(() => _i7.ReminderRepositoryImpl());
-    await gh.singletonAsync<_i8.JWTAuthenticator>(
-      () => _i9.JWTAuthenticatorImpl.init(gh<_i3.DotEnv>()),
+    gh.singleton<_i4.ReminderScheduler>(() => _i5.ReminderSchedulerImpl());
+    gh.singleton<_i6.UserRepository>(() => _i7.UserRepositoryImpl());
+    gh.singleton<_i8.ReminderRepository>(() => _i9.ReminderRepositoryImpl());
+    await gh.singletonAsync<_i10.JWTAuthenticator>(
+      () => _i11.JWTAuthenticatorImpl.init(gh<_i3.DotEnv>()),
       preResolve: true,
     );
-    gh.singleton<_i10.UserService>(() => _i11.UserServiceImpl(
-          gh<_i8.JWTAuthenticator>(),
-          gh<_i4.UserRepository>(),
+    gh.singleton<_i12.UserService>(() => _i13.UserServiceImpl(
+          gh<_i10.JWTAuthenticator>(),
+          gh<_i6.UserRepository>(),
         ));
-    gh.singleton<_i12.ReminderService>(
-        () => _i13.ReminderServiceImpl(gh<_i6.ReminderRepository>()));
-    gh.singleton<_i14.UserController>(
-        () => _i14.UserController(gh<_i10.UserService>()));
-    gh.singleton<_i15.ReminderController>(
-        () => _i15.ReminderController(gh<_i12.ReminderService>()));
+    gh.singleton<_i14.ReminderService>(() => _i15.ReminderServiceImpl(
+          gh<_i8.ReminderRepository>(),
+          gh<_i4.ReminderScheduler>(),
+        )..init());
+    gh.singleton<_i16.ReminderController>(
+        () => _i16.ReminderController(gh<_i14.ReminderService>()));
+    gh.singleton<_i17.UserController>(
+        () => _i17.UserController(gh<_i12.UserService>()));
     return this;
   }
 }
 
-class _$RegisterModule extends _i16.RegisterModule {}
+class _$RegisterModule extends _i18.RegisterModule {}

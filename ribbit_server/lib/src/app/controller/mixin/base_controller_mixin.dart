@@ -12,7 +12,8 @@ typedef AuthenticationMiddleWareAuthenticator = Future<User?> Function(
 
 mixin BaseControllerMixin {
   Future<Response> resilientResponse(
-      ResponsePerformer responsePerformer) async {
+    ResponsePerformer responsePerformer,
+  ) async {
     try {
       return await responsePerformer();
     } catch (ex) {
