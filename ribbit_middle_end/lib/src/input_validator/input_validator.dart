@@ -7,7 +7,7 @@ abstract final class InputValidators {
       );
 
   static InputValidator<String> userPassword(String input) =>
-      InputValidator.email(
+      InputValidator.password(
         'password',
         input,
       );
