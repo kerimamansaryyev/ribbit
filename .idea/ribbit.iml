@@ -3,12 +3,12 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <excludeFolder url="file://$MODULE_DIR$/ribbit_server/.dart_tool" />
-      <excludeFolder url="file://$MODULE_DIR$/ribbit_server/.pub" />
-      <excludeFolder url="file://$MODULE_DIR$/ribbit_server/build" />
-      <excludeFolder url="file://$MODULE_DIR$/ribbit_middle_end/.dart_tool" />
-      <excludeFolder url="file://$MODULE_DIR$/ribbit_middle_end/.pub" />
-      <excludeFolder url="file://$MODULE_DIR$/ribbit_middle_end/build" />
+      <excludeFolder url="file://$MODULE_DIR$/ribbit_main_service/ribbit_middle_end/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/ribbit_main_service/ribbit_middle_end/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/ribbit_main_service/ribbit_middle_end/build" />
+      <excludeFolder url="file://$MODULE_DIR$/ribbit_main_service/ribbit_server/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/ribbit_main_service/ribbit_server/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/ribbit_main_service/ribbit_server/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
