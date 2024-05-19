@@ -27,7 +27,7 @@ model Reminder {
   title String @default("")
   notes String @default("")
   created_at DateTime @default(now())
-  remind_at DateTime
+  remind_at DateTime?
   user User @relation(fields: [userId], references: [id])
   userId String
 }
