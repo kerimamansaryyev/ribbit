@@ -1,5 +1,33 @@
 typedef InputValidatorPredicate<T> = bool Function(T input);
 
+abstract final class InputValidators {
+  static InputValidator<String> userEmail(String input) => InputValidator.email(
+        'email',
+        input,
+      );
+
+  static InputValidator<String> userPassword(String input) =>
+      InputValidator.email(
+        'password',
+        input,
+      );
+
+  static InputValidator<DateTime?> reminderRemindAtValidator(
+    DateTime? inputDate,
+  ) =>
+      InputValidator(
+        fieldName: 'remind_at',
+        inputValidatorPredicate: (input) {
+          if (input == null) return true;
+
+          final now = DateTime.now();
+
+          return !now.isAfter(input);
+        },
+        input: inputDate,
+      );
+}
+
 final class InputValidator<T> {
   const InputValidator({
     required this.fieldName,

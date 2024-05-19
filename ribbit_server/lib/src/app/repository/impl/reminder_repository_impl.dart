@@ -1,6 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:orm/orm.dart';
-import 'package:ribbit_server/src/app/input_validator/input_validator.dart';
+import 'package:ribbit_middle_end/ribbit_middle_end.dart';
 import 'package:ribbit_server/src/app/repository/mixin/base_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/reminder_repository.dart';
 import 'package:ribbit_server/src/app/service/result/create_reminder_result.dart';
@@ -21,7 +21,7 @@ final class ReminderRepositoryImpl
         () async {
           final invalidInput = validateInputs(
             [
-              _remindAtValidator(
+              InputValidators.reminderRemindAtValidator(
                 remindAt,
               ),
             ],
@@ -46,18 +46,5 @@ final class ReminderRepositoryImpl
             ),
           );
         },
-      );
-
-  InputValidator<DateTime?> _remindAtValidator(DateTime? date) =>
-      InputValidator(
-        fieldName: 'remind_at',
-        inputValidatorPredicate: (input) {
-          if (input == null) return true;
-
-          final now = DateTime.now();
-
-          return !now.isAfter(input);
-        },
-        input: date,
       );
 }

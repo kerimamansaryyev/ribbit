@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:injectable/injectable.dart';
 import 'package:orm/orm.dart';
-import 'package:ribbit_server/src/app/input_validator/input_validator.dart';
+import 'package:ribbit_middle_end/ribbit_middle_end.dart';
 import 'package:ribbit_server/src/app/repository/mixin/base_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/mixin/encrypted_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/user_repository.dart';
@@ -40,8 +40,8 @@ final class UserRepositoryImpl
 
           final invalidInput = validateInputs(
             [
-              InputValidator.email('email', email),
-              InputValidator.password('password', password),
+              InputValidators.userEmail(email),
+              InputValidators.userPassword(password),
             ],
           );
 

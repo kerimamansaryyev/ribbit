@@ -1,4 +1,4 @@
-import 'package:ribbit_server/src/app/input_validator/input_validator.dart';
+import 'package:ribbit_middle_end/ribbit_middle_end.dart';
 import 'package:ribbit_server/src/prisma/generated/client.dart';
 
 typedef DatabaseAction<T> = Future<T> Function();
