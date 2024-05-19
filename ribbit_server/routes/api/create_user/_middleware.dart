@@ -6,8 +6,5 @@ Handler middleware(Handler handler) => handler
       requestLogger(),
     )
     .use(
-      BaseControllerMixin.authenticationMiddleWare,
-    )
-    .use(
       BaseControllerMixin.unexpectedErrorResponseMiddleware,
     );

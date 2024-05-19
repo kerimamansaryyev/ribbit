@@ -10,45 +10,57 @@ typedef AuthenticationMiddleWareAuthenticator = Future<User?> Function(
   String token,
 );
 
-mixin BaseControllerMixin {
-  Future<Response> resilientResponse(
-    ResponsePerformer responsePerformer,
-  ) async {
-    try {
-      return await responsePerformer();
-    } catch (ex) {
-      return Response.json(
+abstract final class ErrorResponseFactory {
+  static Response unexpected() => Response.json(
         statusCode: HttpStatus.internalServerError,
         body: const ErrorResponse(
           ribbitServerErrorCode: RibbitServerErrorCode.unexpectedError,
           message: 'Unexpected Error',
         ).toJson(),
       );
-    }
-  }
 
-  static Handler authenticationMiddleWare(Handler handler) => handler.use(
-        (handler) => (requestContext) async {
-          final authorization = requestContext.request.headers.bearer();
-          if (authorization != null) {
-            final user = await appServiceLocator<UserService>().verifyFromToken(
-              token: authorization,
-            );
-
-            if (user != null) {
-              return handler(requestContext.provide(() => user));
-            }
-          }
-
-          return Response.json(
-            statusCode: HttpStatus.unauthorized,
-            body: const ErrorResponse(
-              ribbitServerErrorCode: RibbitServerErrorCode.unauthorized,
-              message: 'Unauthorized',
-            ),
-          );
-        },
+  static Response unauthorized() => Response.json(
+        statusCode: HttpStatus.unauthorized,
+        body: const ErrorResponse(
+          ribbitServerErrorCode: RibbitServerErrorCode.unauthorized,
+          message: 'Unauthorized',
+        ),
       );
+
+  static Response invalidRequestFormat(dynamic exception) => Response.json(
+        statusCode: HttpStatus.badRequest,
+        body: ErrorResponse(
+          ribbitServerErrorCode: RibbitServerErrorCode.invalidRequestFormat,
+          message: 'Bad request: $exception',
+        ).toJson(),
+      );
+}
+
+mixin BaseControllerMixin {
+  static Handler authenticationMiddleWare(Handler handler) =>
+      (requestContext) async {
+        final authorization = requestContext.request.headers.bearer();
+        if (authorization != null) {
+          final user = await appServiceLocator<UserService>().verifyFromToken(
+            token: authorization,
+          );
+
+          if (user != null) {
+            return handler(requestContext.provide(() => user));
+          }
+        }
+
+        return ErrorResponseFactory.unauthorized();
+      };
+
+  static Handler unexpectedErrorResponseMiddleware(Handler handler) =>
+      (requestContext) async {
+        try {
+          return await handler(requestContext);
+        } catch (ex) {
+          return ErrorResponseFactory.unexpected();
+        }
+      };
 }
 
 extension _HeadersExtension on Map<String, String> {
