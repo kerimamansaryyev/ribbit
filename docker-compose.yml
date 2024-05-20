@@ -1,0 +1,32 @@
+version: "3"
+services:
+
+  # Launch the db first
+  ribbit_database:
+    image: mysql:latest
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: myPassword123
+      MYSQL_DATABASE: hellav
+      MYSQL_USER: kerim
+      MYSQL_PASSWORD: myPassword123
+
+  # Launch this after
+  ribbit_main_service:
+    container_name: ribbit_main_service
+    build:
+      dockerfile: ./ribbit_main_service/Dockerfile
+      args:
+        - DATABASE_URL=mysql://kerim:myPassword123@localhost:3306/hellav
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - JWT_SECRET=MyBiggestS3cr3t
+      - DATABASE_URL=mysql://kerim:myPassword123@localhost:3306/hellav
+
+networks:
+  ribbit:
+    external: true
