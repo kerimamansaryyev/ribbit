@@ -1,12 +1,16 @@
 from typing import Dict
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.date import DateTrigger
+from flask.ctx import AppContext
+
 from model.reminde_notification import ReminderNotification
 from flask import Flask, request, jsonify
 from datetime import datetime
 from utils.date_converter import convert_date_from_client_to_local
 from integration.push_notification_messaging_service import PushNotificationMessagingService
+import logging
 
+logging.basicConfig(filename='record.log', level=logging.DEBUG)
 app = Flask(__name__)
 
 in_memory_notification_store: Dict[str, ReminderNotification] = dict()
@@ -15,6 +19,23 @@ scheduler = BackgroundScheduler()
 scheduler.start()
 
 push_notification_messaging_service = PushNotificationMessagingService()
+
+
+@app.route('/api/test_notification', methods=['POST'])
+def send_test_notification():
+    json_data = request.get_json(silent=True) or {}
+    user_device_token = json_data.get('user_device_token')
+
+    if not user_device_token:
+        return jsonify({'message': 'User device token was not provided'}), 400
+
+    push_notification_messaging_service.send_notification(
+        title="Test Notification",
+        preview="Test Preview",
+        user_token=user_device_token
+    )
+
+    return jsonify({'message': 'Notification has been sent'}), 200
 
 
 @app.route('/api/schedule/reminder', methods=['POST'])
@@ -74,11 +95,19 @@ def __schedule_reminder(reminder_id: str, reminder_notification: ReminderNotific
 
     in_memory_notification_store[reminder_id] = reminder_notification
 
-    def run_func():
-        print(reminder_notification.title)
+    def run_func(app_context: AppContext) -> None:
+        app_context.push()
+        push_notification_messaging_service.send_notification(
+            title=reminder_notification.title,
+            preview=reminder_notification.description,
+            user_token=reminder_notification.user_device_token
+        )
+
+    app.logger.debug(f'Scheduled reminder {reminder_notification.title} to {run_date}')
 
     scheduler.add_job(
         run_func,
+        args=[app.app_context()],
         id=reminder_id,
         trigger=DateTrigger(run_date=run_date)
     )
