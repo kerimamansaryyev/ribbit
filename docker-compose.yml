@@ -3,6 +3,8 @@ services:
 
   # Launch the db first
   ribbit_database:
+    container_name: ribbit_database
+    hostname: ribbitdb
     image: mysql:latest
     restart: unless-stopped
     ports:
@@ -19,13 +21,13 @@ services:
     build:
       dockerfile: ./ribbit_main_service/Dockerfile
       args:
-        - DATABASE_URL=mysql://kerim:myPassword123@localhost:3306/hellav
+        - DATABASE_URL=mysql://kerim:myPassword123@ribbitdb:3306/hellav
     ports:
       - "8080:8080"
     environment:
       - PORT=8080
       - JWT_SECRET=MyBiggestS3cr3t
-      - DATABASE_URL=mysql://kerim:myPassword123@localhost:3306/hellav
+      - DATABASE_URL=mysql://kerim:myPassword123@ribbitdb:3306/hellav
 
 networks:
   ribbit:

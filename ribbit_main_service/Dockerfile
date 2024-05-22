@@ -54,7 +54,6 @@ FROM scratch
 
 # Copy runtime from previous build phase
 COPY --from=build /runtime/ /
-COPY --from=odroe/prisma-dart:latest / /
 
 # Copy the source to review it within the Docker Container later
 COPY --from=build /app/ribbit_server/. /app/source/
