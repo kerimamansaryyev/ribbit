@@ -13,8 +13,6 @@ import logging
 logging.basicConfig(filename='record.log', level=logging.DEBUG)
 app = Flask(__name__)
 
-in_memory_notification_store: Dict[str, ReminderNotification] = dict()
-
 scheduler = BackgroundScheduler()
 scheduler.start()
 
@@ -85,15 +83,13 @@ def schedule_reminder():
 
 
 def __cancel_schedule(reminder_id: str) -> None:
-    if reminder_id in in_memory_notification_store:
+    if scheduler.get_job(reminder_id):
         scheduler.remove_job(reminder_id)
 
 
 def __schedule_reminder(reminder_id: str, reminder_notification: ReminderNotification, run_date: datetime) -> None:
-    if reminder_id in in_memory_notification_store:
+    if scheduler.get_job(reminder_id):
         scheduler.remove_job(reminder_id)
-
-    in_memory_notification_store[reminder_id] = reminder_notification
 
     def run_func(app_context: AppContext) -> None:
         app_context.push()
