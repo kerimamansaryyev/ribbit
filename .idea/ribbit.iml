@@ -9,6 +9,9 @@
       <excludeFolder url="file://$MODULE_DIR$/ribbit_main_service/ribbit_server/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/ribbit_main_service/ribbit_server/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/ribbit_main_service/ribbit_server/build" />
+      <excludeFolder url="file://$MODULE_DIR$/ribbit_client/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/ribbit_client/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/ribbit_client/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
