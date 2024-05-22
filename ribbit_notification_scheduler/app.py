@@ -1,4 +1,3 @@
-from typing import Dict
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.date import DateTrigger
 from flask.ctx import AppContext
