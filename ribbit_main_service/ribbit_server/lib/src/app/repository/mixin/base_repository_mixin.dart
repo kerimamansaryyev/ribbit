@@ -19,15 +19,4 @@ mixin BaseRepositoryMixin {
   PrismaClient get prismaClient => _prismaClient;
 
   void _replaceClient() => _prismaClient = PrismaClient();
-
-  InputValidator<dynamic>? validateInputs(
-    List<InputValidator<dynamic>> validators,
-  ) {
-    for (final validator in validators) {
-      if (!validator.isValid()) {
-        return validator;
-      }
-    }
-    return null;
-  }
 }

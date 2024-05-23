@@ -1,6 +1,5 @@
 import 'package:injectable/injectable.dart';
 import 'package:orm/orm.dart';
-import 'package:ribbit_middle_end/ribbit_middle_end.dart';
 import 'package:ribbit_server/src/app/repository/mixin/base_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/reminder_repository.dart';
 import 'package:ribbit_server/src/app/service/result/create_reminder_result.dart';
@@ -19,19 +18,6 @@ final class ReminderRepositoryImpl
   }) =>
       preventConnectionLeak(
         () async {
-          final invalidInput = validateInputs(
-            [
-              InputValidators.reminderRemindAtValidator(
-                remindAt,
-              ),
-            ],
-          );
-          if (invalidInput != null) {
-            return CreateReminderInvalidInput(
-              fieldName: invalidInput.fieldName,
-            );
-          }
-
           final reminder = await prismaClient.reminder.create(
             data: PrismaUnion.$1(
               ReminderCreateInput(

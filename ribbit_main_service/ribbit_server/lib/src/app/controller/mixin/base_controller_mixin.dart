@@ -35,9 +35,31 @@ abstract final class ErrorResponseFactory {
           message: 'Bad request: $exception',
         ).toJson(),
       );
+
+  static Response invalidInput(
+    String inputFieldName,
+  ) =>
+      Response.json(
+        statusCode: HttpStatus.badRequest,
+        body: ErrorResponse(
+          message: 'Invalid input on field: $inputFieldName',
+          ribbitServerErrorCode: RibbitServerErrorCode.invalidInput,
+        ).toJson(),
+      );
 }
 
 mixin BaseControllerMixin {
+  static InputValidator<dynamic>? validateInputs(
+    List<InputValidator<dynamic>> validators,
+  ) {
+    for (final validator in validators) {
+      if (!validator.isValid()) {
+        return validator;
+      }
+    }
+    return null;
+  }
+
   UserRepositoryGetUserByIdDTO getCurrentUserByRequest(
     RequestContext context,
   ) =>

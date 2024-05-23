@@ -24,6 +24,20 @@ final class UserController with BaseControllerMixin {
     RequestContext requestContext,
   ) async {
     return requestContext.handleAsJson<CreateUserRequest>(
+      applyInputValidators: (_, createUserRequest) => [
+        InputValidators.userEmail(
+          fieldName: 'email',
+          input: createUserRequest.email,
+        ),
+        InputValidators.userPassword(
+          fieldName: 'password',
+          input: createUserRequest.password,
+        ),
+        InputValidators.firstNameValidator(
+          fieldName: 'firstName',
+          input: createUserRequest.firstName,
+        )
+      ],
       parser: (context, rawData) => CreateUserRequest.fromJson(
         rawData,
       ),
@@ -59,13 +73,6 @@ final class UserController with BaseControllerMixin {
                   email: user.email,
                   userId: user.id,
                 ),
-              ).toJson(),
-            ),
-          CreateUserInvalidInput(fieldName: final fieldName) => Response.json(
-              statusCode: HttpStatus.badRequest,
-              body: ErrorResponse(
-                message: 'Invalid input on field: $fieldName',
-                ribbitServerErrorCode: RibbitServerErrorCode.invalidInput,
               ).toJson(),
             ),
         };
@@ -105,6 +112,7 @@ final class UserController with BaseControllerMixin {
     RequestContext requestContext,
   ) async {
     return requestContext.handleAsJson<LoginUserRequest>(
+      applyInputValidators: null,
       parser: (context, rawData) => LoginUserRequest.fromJson(rawData),
       responseDispatcher: (context, loginUserRequest) async {
         final (email, password) = (

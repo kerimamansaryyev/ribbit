@@ -1,30 +1,44 @@
 typedef InputValidatorPredicate<T> = bool Function(T input);
 
+typedef RemindAtDateValidationPredicate = bool Function(DateTime? input);
+
 abstract final class InputValidators {
-  static InputValidator<String> userEmail(String input) => InputValidator.email(
-        'email',
+  static InputValidator<String> userEmail({
+    required String fieldName,
+    required String input,
+  }) =>
+      InputValidator.email(
+        fieldName,
         input,
       );
 
-  static InputValidator<String> userPassword(String input) =>
+  static InputValidator<String> userPassword({
+    required String input,
+    required String fieldName,
+  }) =>
       InputValidator.password(
-        'password',
+        fieldName,
         input,
       );
 
-  static InputValidator<DateTime?> reminderRemindAtValidator(
-    DateTime? inputDate,
-  ) =>
+  static InputValidator<DateTime?> reminderRemindAtValidator({
+    required String fieldName,
+    required DateTime? inputDate,
+    required RemindAtDateValidationPredicate inputValidationPredicate,
+  }) =>
       InputValidator(
-        fieldName: 'remind_at',
-        inputValidatorPredicate: (input) {
-          if (input == null) return true;
-
-          final now = DateTime.now();
-
-          return !now.isAfter(input);
-        },
+        fieldName: fieldName,
+        inputValidatorPredicate: inputValidationPredicate,
         input: inputDate,
+      );
+
+  static InputValidator<String> firstNameValidator({
+    required String fieldName,
+    required String input,
+  }) =>
+      InputValidator.requiredString(
+        fieldName,
+        input,
       );
 }
 
@@ -41,13 +55,23 @@ final class InputValidator<T> {
 
   bool isValid() => inputValidatorPredicate(input);
 
+  static InputValidator<String> requiredString(
+    String fieldName,
+    String input,
+  ) =>
+      InputValidator(
+        fieldName: fieldName,
+        inputValidatorPredicate: (input) => input.trim().isNotEmpty,
+        input: input,
+      );
+
   static InputValidator<String> email(
     String fieldName,
     String input,
   ) =>
       InputValidator<String>(
-        input: input,
         fieldName: fieldName,
+        input: input,
         inputValidatorPredicate: (input) =>
             RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
                 .hasMatch(input),
@@ -62,8 +86,8 @@ final class InputValidator<T> {
   // $: Asserts the position at the end of the string.
   static InputValidator<String> password(String fieldName, String input) =>
       InputValidator<String>(
-        input: input,
         fieldName: fieldName,
+        input: input,
         inputValidatorPredicate: (input) => RegExp(
           r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$',
         ).hasMatch(input),

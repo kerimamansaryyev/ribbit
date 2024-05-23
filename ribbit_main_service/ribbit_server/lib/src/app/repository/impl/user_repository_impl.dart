@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:injectable/injectable.dart';
 import 'package:orm/orm.dart';
-import 'package:ribbit_middle_end/ribbit_middle_end.dart';
 import 'package:ribbit_server/src/app/repository/mixin/base_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/mixin/encrypted_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/user_repository.dart';
@@ -38,20 +37,6 @@ final class UserRepositoryImpl
           if (user != null) {
             await tx.$transaction.commit();
             return const CreateUserAlreadyExists();
-          }
-
-          final invalidInput = validateInputs(
-            [
-              InputValidators.userEmail(email),
-              InputValidators.userPassword(password),
-            ],
-          );
-
-          if (invalidInput != null) {
-            await tx.$transaction.commit();
-            return CreateUserInvalidInput(
-              fieldName: invalidInput.fieldName,
-            );
           }
 
           final createdUser = await tx.user.create(

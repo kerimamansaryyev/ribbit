@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dart_frog/dart_frog.dart';
 import 'package:injectable/injectable.dart';
 import 'package:ribbit_middle_end/ribbit_middle_end.dart';
@@ -18,6 +16,15 @@ final class ReminderController with BaseControllerMixin {
 
   Future<Response> createReminder(RequestContext requestContext) async {
     return requestContext.handleAsJson<CreateReminderRequest>(
+      applyInputValidators: (_, createReminderRequest) => [
+        InputValidators.reminderRemindAtValidator(
+          fieldName: 'remind_at',
+          inputDate: createReminderRequest.remindAt,
+          inputValidationPredicate: (input) =>
+              input == null ||
+              !DateTime.now().toLocal().isAfter(input.toLocal()),
+        ),
+      ],
       parser: (context, rawData) => CreateReminderRequest.fromJson(
         rawData,
       ),
@@ -34,14 +41,6 @@ final class ReminderController with BaseControllerMixin {
           notes: notes,
           remindAt: remindAt,
         )) {
-          CreateReminderInvalidInput(fieldName: final fieldName) =>
-            Response.json(
-              statusCode: HttpStatus.badRequest,
-              body: ErrorResponse(
-                message: 'Invalid input on field: $fieldName',
-                ribbitServerErrorCode: RibbitServerErrorCode.invalidInput,
-              ).toJson(),
-            ),
           CreateReminderSuccessfullyCreated(reminder: final reminder) =>
             Response.json(
               body: CreateReminderResponse(
