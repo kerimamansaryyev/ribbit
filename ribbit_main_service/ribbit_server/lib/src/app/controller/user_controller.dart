@@ -48,8 +48,8 @@ final class UserController with BaseControllerMixin {
           password,
         ) = (
           createUserRequest.email,
-          createUserRequest.password,
           createUserRequest.firstName,
+          createUserRequest.password,
         );
 
         final result = await _userService.createUser(

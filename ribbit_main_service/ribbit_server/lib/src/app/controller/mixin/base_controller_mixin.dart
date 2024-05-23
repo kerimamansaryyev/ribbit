@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
+import 'package:logger/logger.dart';
 import 'package:ribbit_middle_end/ribbit_middle_end.dart';
 import 'package:ribbit_server/src/app/repository/user_repository.dart';
 import 'package:ribbit_server/src/app/service/user_service.dart';
@@ -89,7 +90,12 @@ mixin BaseControllerMixin {
       (requestContext) async {
         try {
           return await handler(requestContext);
-        } catch (ex) {
+        } catch (ex, trace) {
+          appServiceLocator<Logger>().f(
+            'Unexpected Error\nEndpoint:${requestContext.request.uri}',
+            error: ex,
+            stackTrace: trace,
+          );
           return ErrorResponseFactory.unexpected();
         }
       };

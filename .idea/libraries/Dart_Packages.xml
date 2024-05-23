@@ -452,6 +452,13 @@
             </list>
           </value>
         </entry>
+        <entry key="logger">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/logger-2.3.0/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="logging">
           <value>
             <list>
@@ -875,6 +882,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/leak_tracker_flutter_testing-3.0.3/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/leak_tracker_testing-3.0.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/lints-3.0.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/logger-2.3.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/logging-1.2.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/macros-0.1.0-main.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/matcher-0.12.16+1/lib" />
