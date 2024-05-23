@@ -18,7 +18,7 @@ final class ReminderController with BaseControllerMixin {
     return requestContext.handleAsJson<CreateReminderRequest>(
       applyInputValidators: (_, createReminderRequest) => [
         InputValidators.reminderRemindAtValidator(
-          fieldName: 'remind_at',
+          fieldName: 'remindAt',
           inputDate: createReminderRequest.remindAt,
           inputValidationPredicate: (input) =>
               input == null ||

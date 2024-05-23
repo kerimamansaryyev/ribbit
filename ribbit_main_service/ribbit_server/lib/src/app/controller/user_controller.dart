@@ -36,7 +36,7 @@ final class UserController with BaseControllerMixin {
         InputValidators.firstNameValidator(
           fieldName: 'firstName',
           input: createUserRequest.firstName,
-        )
+        ),
       ],
       parser: (context, rawData) => CreateUserRequest.fromJson(
         rawData,
