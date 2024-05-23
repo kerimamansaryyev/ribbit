@@ -1,4 +1,4 @@
-import 'package:ribbit_server/src/prisma/generated/model.dart';
+import 'package:ribbit_server/src/app/repository/user_repository.dart';
 
 sealed class LoginUserResult {}
 
@@ -8,7 +8,7 @@ final class LoginUserSuccessful implements LoginUserResult {
     required this.user,
   });
 
-  final User user;
+  final UserRepositoryValidateUserCredentialsDTO user;
   final String accessToken;
 }
 

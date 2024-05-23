@@ -1,4 +1,4 @@
-import 'package:ribbit_server/src/prisma/generated/model.dart';
+import 'package:ribbit_server/src/app/repository/user_repository.dart';
 
 sealed class CreateUserResult {}
 
@@ -19,5 +19,5 @@ final class CreateUserSuccessfullyCreated implements CreateUserResult {
     required this.user,
   });
 
-  final User user;
+  final UserRepositoryCreateUserDTO user;
 }

@@ -7,7 +7,6 @@ import 'package:ribbit_server/src/app/controller/extension/rest_controller_exten
 import 'package:ribbit_server/src/app/controller/mixin/base_controller_mixin.dart';
 import 'package:ribbit_server/src/app/service/reminder_service.dart';
 import 'package:ribbit_server/src/app/service/result/create_reminder_result.dart';
-import 'package:ribbit_server/src/prisma/generated/model.dart';
 
 @singleton
 final class ReminderController with BaseControllerMixin {
@@ -30,7 +29,7 @@ final class ReminderController with BaseControllerMixin {
         );
 
         return switch (await _reminderService.createReminder(
-          userId: requestContext.read<User>().id!,
+          userId: getCurrentUserByRequest(context).id,
           title: title,
           notes: notes,
           remindAt: remindAt,

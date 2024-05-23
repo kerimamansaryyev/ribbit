@@ -1,7 +1,7 @@
+import 'package:ribbit_server/src/app/repository/user_repository.dart';
 import 'package:ribbit_server/src/app/service/result/create_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/delete_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/login_user_result.dart';
-import 'package:ribbit_server/src/prisma/generated/model.dart';
 
 /// Service responsible for User
 abstract interface class UserService {
@@ -17,7 +17,7 @@ abstract interface class UserService {
     required String password,
   });
 
-  Future<User?> verifyFromToken({
+  Future<UserRepositoryGetUserByIdDTO?> verifyFromToken({
     required String token,
   });
 

@@ -9,7 +9,6 @@ import 'package:ribbit_server/src/app/service/result/create_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/delete_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/login_user_result.dart';
 import 'package:ribbit_server/src/app/service/user_service.dart';
-import 'package:ribbit_server/src/prisma/generated/model.dart';
 
 /// Handling requests upon User
 @singleton
@@ -77,7 +76,7 @@ final class UserController with BaseControllerMixin {
   Future<Response> deleteOwnUserAccount(RequestContext requestContext) async {
     return switch (requestContext.request.method) {
       HttpMethod.delete => switch (await _userService.deleteUserById(
-          userId: requestContext.read<User>().id!,
+          userId: getCurrentUserByRequest(requestContext).id,
         )) {
           DeleteUserDeleted() => Response.json(
               body: DeleteOwnUserAccountResponse(

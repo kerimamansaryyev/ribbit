@@ -6,7 +6,6 @@ import 'package:ribbit_server/src/app/service/result/delete_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/login_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/validate_user_credentials_result.dart';
 import 'package:ribbit_server/src/app/service/user_service.dart';
-import 'package:ribbit_server/src/prisma/generated/model.dart';
 
 @Singleton(as: UserService)
 final class UserServiceImpl implements UserService {
@@ -42,7 +41,7 @@ final class UserServiceImpl implements UserService {
       ValidateUserCredentialsSucceeded(user: final user) => LoginUserSuccessful(
           user: user,
           accessToken: _jwtAuthenticator.generateToken(
-            userId: user.id!,
+            userId: user.id,
             email: email,
           ),
         ),
@@ -51,7 +50,9 @@ final class UserServiceImpl implements UserService {
   }
 
   @override
-  Future<User?> verifyFromToken({required String token}) async {
+  Future<UserRepositoryGetUserByIdDTO?> verifyFromToken({
+    required String token,
+  }) async {
     final userId = _jwtAuthenticator.getPayloadFromToken(token: token)?.userId;
     if (userId == null) {
       return null;

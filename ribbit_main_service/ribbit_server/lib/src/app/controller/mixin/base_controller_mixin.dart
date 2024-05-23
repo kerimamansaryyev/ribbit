@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:ribbit_middle_end/ribbit_middle_end.dart';
+import 'package:ribbit_server/src/app/repository/user_repository.dart';
 import 'package:ribbit_server/src/app/service/user_service.dart';
 import 'package:ribbit_server/src/injectable_config/di_init.dart';
 import 'package:ribbit_server/src/prisma/generated/model.dart';
@@ -37,6 +38,11 @@ abstract final class ErrorResponseFactory {
 }
 
 mixin BaseControllerMixin {
+  UserRepositoryGetUserByIdDTO getCurrentUserByRequest(
+    RequestContext context,
+  ) =>
+      context.read<UserRepositoryGetUserByIdDTO>();
+
   static Handler authenticationMiddleWare(Handler handler) =>
       (requestContext) async {
         final authorization = requestContext.request.headers.bearer();
@@ -46,7 +52,11 @@ mixin BaseControllerMixin {
           );
 
           if (user != null) {
-            return handler(requestContext.provide(() => user));
+            return handler(
+              requestContext.provide<UserRepositoryGetUserByIdDTO>(
+                () => user,
+              ),
+            );
           }
         }
 

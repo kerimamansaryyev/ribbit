@@ -1,9 +1,31 @@
 import 'package:ribbit_server/src/app/service/result/create_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/delete_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/validate_user_credentials_result.dart';
-import 'package:ribbit_server/src/prisma/generated/model.dart';
 
-/// User DAO
+typedef UserRepositoryCreateUserDTO = ({
+  String id,
+  String email,
+  String firstName,
+});
+
+typedef UserRepositoryValidateUserCredentialsDTO = ({
+  String id,
+  String email,
+  String firstName,
+});
+
+final class UserRepositoryGetUserByIdDTO {
+  const UserRepositoryGetUserByIdDTO({
+    required this.firstName,
+    required this.email,
+    required this.id,
+  });
+
+  final String id;
+  final String email;
+  final String firstName;
+}
+
 abstract interface class UserRepository {
   Future<CreateUserResult> createUser({
     required String email,
@@ -16,7 +38,7 @@ abstract interface class UserRepository {
     required String password,
   });
 
-  Future<User?> getUserByUserId({
+  Future<UserRepositoryGetUserByIdDTO?> getUserByUserId({
     required String userId,
   });
 

@@ -1,4 +1,4 @@
-import 'package:ribbit_server/src/prisma/generated/model.dart';
+import 'package:ribbit_server/src/app/repository/reminder_repository.dart';
 
 sealed class CreateReminderResult {}
 
@@ -15,5 +15,5 @@ final class CreateReminderSuccessfullyCreated implements CreateReminderResult {
     required this.reminder,
   });
 
-  final Reminder reminder;
+  final ReminderRepositoryCreateReminderDTO reminder;
 }
