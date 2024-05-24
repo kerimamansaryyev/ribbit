@@ -1,6 +1,10 @@
+import os
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.date import DateTrigger
 from flask.ctx import AppContext
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required
+
 from database.app_db import init_db
 from model.reminder_notification import ReminderNotification
 from flask import Flask, request, jsonify
@@ -16,14 +20,28 @@ app = Flask(__name__)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///scheduler.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
 
 init_db(app)
 
+jwt = JWTManager(app)
 
 scheduler = BackgroundScheduler()
 scheduler.start()
 
 push_notification_messaging_service = PushNotificationMessagingService()
+
+
+@app.route(rule='/api/login', methods=['POST'])
+def server_api_login():
+    username = request.json.get('username')
+    password = request.json.get('password')
+
+    if username != os.getenv('RIBBIT_SELF_ACCESS_USERNAME') and password != os.getenv('MyStrPssw0rd@123'):
+        return jsonify({'message': 'Unauthorized'}), 401
+
+    access_token = create_access_token(identity=username)
+    return jsonify({'access_token': access_token}), 200
 
 
 @app.route('/api/test_notification', methods=['POST'])
@@ -44,6 +62,7 @@ def send_test_notification():
 
 
 @app.route('/api/schedule/reminder', methods=['POST'])
+@jwt_required()
 def schedule_reminder():
     json_data = request.get_json(silent=True) or {}
 
