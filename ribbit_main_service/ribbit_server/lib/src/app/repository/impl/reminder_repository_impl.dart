@@ -15,38 +15,56 @@ final class ReminderRepositoryImpl
     required String title,
     required String notes,
     required DateTime? remindAt,
+    required BaseRepositoryBeforeCommitDelegate<
+            ReminderRepositoryCreateReminderDTO>
+        beforeCommitHandler,
   }) =>
       preventConnectionLeak(
         () async {
-          final reminder = await prismaClient.reminder.create(
-            data: PrismaUnion.$1(
-              ReminderCreateInput(
-                title: title,
-                notes: notes,
-                remindAt: switch (remindAt) {
-                  DateTime() => PrismaUnion.$1(remindAt),
-                  null => const PrismaUnion.$2(PrismaNull()),
-                },
-                user: UserCreateNestedOneWithoutRemindersInput(
-                  connect: UserWhereUniqueInput(
-                    id: userId,
+          final tx = await prismaClient.$transaction.start();
+          try {
+            final reminder = await tx.reminder.create(
+              data: PrismaUnion.$1(
+                ReminderCreateInput(
+                  title: title,
+                  notes: notes,
+                  remindAt: switch (remindAt) {
+                    DateTime() => PrismaUnion.$1(remindAt),
+                    null => const PrismaUnion.$2(PrismaNull()),
+                  },
+                  user: UserCreateNestedOneWithoutRemindersInput(
+                    connect: UserWhereUniqueInput(
+                      id: userId,
+                    ),
                   ),
                 ),
               ),
-            ),
-            include: const ReminderInclude(
-              user: PrismaUnion.$1(false),
-            ),
-          );
+              include: const ReminderInclude(
+                user: PrismaUnion.$1(false),
+              ),
+            );
 
-          return CreateReminderSuccessfullyCreated(
-            reminder: (
-              userId: reminder.userId!,
-              title: reminder.title!,
-              notes: reminder.notes!,
-              remindAt: remindAt,
-            ),
-          );
+            final successResult = CreateReminderSuccessfullyCreated(
+              reminder: (
+                id: reminder.id!,
+                userId: reminder.userId!,
+                title: reminder.title!,
+                notes: reminder.notes!,
+                remindAt: remindAt,
+              ),
+            );
+
+            await beforeCommitHandler(
+              successResult.reminder,
+            );
+
+            await tx.$transaction.commit();
+
+            return successResult;
+          } catch (_) {
+            await tx.$transaction.rollback();
+            rethrow;
+          }
         },
       );
 }

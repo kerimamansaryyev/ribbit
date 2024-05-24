@@ -1,4 +1,5 @@
 import 'package:dotenv/dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 
@@ -9,4 +10,7 @@ abstract class RegisterModule {
 
   @singleton
   Logger get logger => Logger();
+
+  @injectable
+  http.Client get client => http.Client();
 }

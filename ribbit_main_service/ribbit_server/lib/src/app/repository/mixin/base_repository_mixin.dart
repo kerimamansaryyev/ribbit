@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:ribbit_server/src/prisma/generated/client.dart';
 
 typedef DatabaseAction<T> = Future<T> Function();
+typedef BaseRepositoryBeforeCommitDelegate<T> = FutureOr<void> Function(
+  T entity,
+);
 
 mixin BaseRepositoryMixin {
   PrismaClient _prismaClient = PrismaClient();
