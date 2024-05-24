@@ -1,5 +1,8 @@
+import sqlalchemy
 from firebase_admin import initialize_app, messaging, exceptions
 from flask import current_app
+from database.app_db import db
+from model.user_device_token import UserDeviceToken
 
 
 class PushNotificationMessagingService:
@@ -7,17 +10,25 @@ class PushNotificationMessagingService:
 
     def __init__(self):
         self.default_app = initialize_app()
-        print(self.default_app.project_id)
 
     @staticmethod
-    def send_notification(title: str, preview: str, user_token: str) -> None:
+    def send_notification(title: str, preview: str, user_id: str) -> None:
+        with current_app.app_context():
+            try:
+                device_token = db.session.get(UserDeviceToken, user_id)
+            except sqlalchemy.orm.exc.ObjectDeletedError:
+                current_app.logger.exception(f"Token for the user{user_id} was not found")
+                return
+        if not device_token:
+            current_app.logger.exception(f"Token for the user{user_id} was not found")
+            return
         try:
             message = messaging.Message(
                 notification=messaging.Notification(
                     title=title,
                     body=preview
                 ),
-                token=user_token
+                token=device_token.token
             )
             response = messaging.send(message)
             current_app.logger.info(f"Sent push notification: {message}\nResponse:{response}")

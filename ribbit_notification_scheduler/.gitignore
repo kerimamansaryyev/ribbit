@@ -1,3 +1,4 @@
 .env
 service-account-file.json
 record.log
+*.db

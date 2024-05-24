@@ -1,15 +1,12 @@
-from typing import Type
-
-
 class ReminderNotification:
     title = ""
     description = ""
-    user_device_token = ""
+    user_id = ""
 
-    def __init__(self, title, description, user_device_token):
-        self.update_data(title, description, user_device_token)
+    def __init__(self, title, description, user_id):
+        self.update_data(title, description, user_id)
 
-    def update_data(self, title, description, user_device_token):
+    def update_data(self, title, description, user_id):
         self.title = title
         self.description = description
-        self.user_device_token = user_device_token
+        self.user_id = user_id

@@ -1,7 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.date import DateTrigger
 from flask.ctx import AppContext
-
+from database.app_db import init_db
 from model.reminder_notification import ReminderNotification
 from flask import Flask, request, jsonify
 from datetime import datetime
@@ -10,7 +10,15 @@ from integration.push_notification_messaging_service import PushNotificationMess
 import logging
 
 logging.basicConfig(filename='record.log', level=logging.DEBUG)
+
+
 app = Flask(__name__)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///scheduler.db"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+init_db(app)
+
 
 scheduler = BackgroundScheduler()
 scheduler.start()
@@ -21,15 +29,15 @@ push_notification_messaging_service = PushNotificationMessagingService()
 @app.route('/api/test_notification', methods=['POST'])
 def send_test_notification():
     json_data = request.get_json(silent=True) or {}
-    user_device_token = json_data.get('user_device_token')
+    user_id = json_data.get('user_device_token')
 
-    if not user_device_token:
+    if not user_id:
         return jsonify({'message': 'User device token was not provided'}), 400
 
     push_notification_messaging_service.send_notification(
         title="Test Notification",
         preview="Test Preview",
-        user_token=user_device_token
+        user_id=user_id
     )
 
     return jsonify({'message': 'Notification has been sent'}), 200
@@ -43,14 +51,14 @@ def schedule_reminder():
     reminder_date = json_data.get('reminder_date')
     reminder_title = json_data.get('reminder_title')
     reminder_description = json_data.get('reminder_description')
-    user_device_token = json_data.get('user_device_token')
+    user_id = json_data.get('user_id')
 
     required_fields = [
         ('reminder_id', reminder_id),
         ('reminder_date', reminder_date),
         ('reminder_title', reminder_title),
         ('reminder_description', reminder_description),
-        ('user_device_token', user_device_token)
+        ('user_id', user_id)
     ]
 
     for field in required_fields:
@@ -69,7 +77,7 @@ def schedule_reminder():
     reminder_notification = ReminderNotification(
         title=reminder_title,
         description=reminder_description,
-        user_device_token=user_device_token
+        user_id=user_id
     )
 
     __schedule_reminder(
@@ -95,7 +103,7 @@ def __schedule_reminder(reminder_id: str, reminder_notification: ReminderNotific
         push_notification_messaging_service.send_notification(
             title=reminder_notification.title,
             preview=reminder_notification.description,
-            user_token=reminder_notification.user_device_token
+            user_id=reminder_notification.user_id
         )
 
     app.logger.debug(f'Scheduled reminder {reminder_notification.title} to {run_date}')
