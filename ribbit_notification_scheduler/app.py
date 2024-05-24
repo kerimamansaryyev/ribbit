@@ -2,7 +2,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.date import DateTrigger
 from flask.ctx import AppContext
 
-from model.reminde_notification import ReminderNotification
+from model.reminder_notification import ReminderNotification
 from flask import Flask, request, jsonify
 from datetime import datetime
 from utils.date_converter import convert_date_from_client_to_local
