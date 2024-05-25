@@ -1,5 +1,6 @@
 import os
 
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.date import DateTrigger
 from flask.ctx import AppContext
@@ -15,10 +16,9 @@ import logging
 
 logging.basicConfig(filename='record.log', level=logging.DEBUG)
 
-
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///scheduler.db"
+__database_url = app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///scheduler.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
 
@@ -27,6 +27,7 @@ init_db(app)
 jwt = JWTManager(app)
 
 scheduler = BackgroundScheduler()
+scheduler.add_jobstore(SQLAlchemyJobStore(url=__database_url), 'default')
 scheduler.start()
 
 push_notification_messaging_service = PushNotificationMessagingService()
@@ -117,21 +118,22 @@ def __schedule_reminder(reminder_id: str, reminder_notification: ReminderNotific
     if scheduler.get_job(reminder_id):
         scheduler.remove_job(reminder_id)
 
-    def run_func(app_context: AppContext) -> None:
-        app_context.push()
-        push_notification_messaging_service.send_notification(
-            title=reminder_notification.title,
-            preview=reminder_notification.description,
-            user_id=reminder_notification.user_id
-        )
-
     app.logger.debug(f'Scheduled reminder {reminder_notification.title} to {run_date}')
 
     scheduler.add_job(
-        run_func,
-        args=[app.app_context()],
+        __push_notification_job,
+        args=[reminder_notification],
         id=reminder_id,
         trigger=DateTrigger(run_date=run_date)
+    )
+
+
+def __push_notification_job(reminder_notification: ReminderNotification) -> None:
+    app.app_context().push()
+    push_notification_messaging_service.send_notification(
+        title=reminder_notification.title,
+        preview=reminder_notification.description,
+        user_id=reminder_notification.user_id
     )
 
 
