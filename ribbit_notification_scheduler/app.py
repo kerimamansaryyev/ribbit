@@ -7,6 +7,8 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 from model.reminder_notification import ReminderNotification
 from flask import Flask, request, jsonify
 from datetime import datetime
+
+from model.user_device_token import UserDeviceToken
 from utils.date_converter import convert_date_from_client_to_local
 import logging
 from integration.push_notification_messaging_service import PushNotificationMessagingService
@@ -47,21 +49,24 @@ def create_app():
         access_token = create_access_token(identity=username, expires_delta=False)
         return jsonify({'access_token': access_token}), 200
 
-    @app_inner.route('/api/test_notification', methods=['POST'])
-    def send_test_notification():
+    @app_inner.route(rule='/api/device_token', methods=['POST'])
+    def set_device_token():
         json_data = request.get_json(silent=True) or {}
-        user_id = json_data.get('user_device_token')
+        user_id = json_data.get('user_id')
+        device_token = json_data.get('device_token')
 
-        if not user_id:
-            return jsonify({'message': 'User device token was not provided'}), 400
+        try:
+            user_id = str(user_id)
+            device_token = str(device_token)
 
-        push_notification_messaging_service.send_notification(
-            title="Test Notification",
-            preview="Test Preview",
-            user_id=user_id
-        )
+        except ValueError:
+            return jsonify({'error': 'user_id or device_token were not provided'}), 400
 
-        return jsonify({'message': 'Notification has been sent'}), 200
+        with app_inner.app_context():
+            db.session.merge(UserDeviceToken(user_id=user_id, device_token=device_token))
+            db.session.commit()
+
+        return jsonify({'message': 'The device token was registered'}), 200
 
     @app_inner.route('/api/schedule/reminder', methods=['POST'])
     @jwt_required()
