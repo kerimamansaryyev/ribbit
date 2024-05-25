@@ -8,11 +8,6 @@ import 'package:ribbit_server/src/app/entity/ribbit_notification_scheduler_sched
 import 'package:ribbit_server/src/app/integration/ribbit_notification_scheduler_service_delegate.dart';
 import 'package:ribbit_server/src/app/utils/http_client_request_delegate.dart';
 
-typedef _ScheduleReminderResponse = ({
-  int statusCode,
-  Map<String, dynamic> responseDecoded,
-});
-
 @Singleton(
   as: RibbitNotificationSchedulerServiceDelegate,
 )
@@ -109,45 +104,38 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
   Future<void> scheduleReminder(
     RibbitNotificationSchedulerServiceDelegateScheduleReminderDTO reminder,
   ) async {
-    try {
-      final response = await _client<_ScheduleReminderResponse>(
-        responseMaker: (httpClient) => httpClient.post(
-          _reminderScheduleEndpoint,
-          headers: {
-            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-            HttpHeaders.authorizationHeader: 'Bearer $_schedulerAccessToken',
-          },
-          body: jsonEncode(
-            RibbitNotificationSchedulerScheduleReminderRequest(
-              reminderId: reminder.reminderId.toString(),
-              reminderDate: reminder.reminderDate.toLocal().toUtc(),
-              reminderTitle: reminder.reminderTitle,
-              reminderDescription: reminder.reminderDescription,
-              userId: reminder.userId,
-            ).toJson(),
-          ),
+    await _client<void>(
+      responseMaker: (httpClient) => httpClient.post(
+        _reminderScheduleEndpoint,
+        headers: {
+          HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+          HttpHeaders.authorizationHeader: 'Bearer $_schedulerAccessToken',
+        },
+        body: jsonEncode(
+          RibbitNotificationSchedulerScheduleReminderRequest(
+            reminderId: reminder.reminderId.toString(),
+            reminderDate: reminder.reminderDate.toLocal().toUtc(),
+            reminderTitle: reminder.reminderTitle,
+            reminderDescription: reminder.reminderDescription,
+            userId: reminder.userId,
+          ).toJson(),
         ),
-        parser: (response, decoded) => (
-          statusCode: response.statusCode,
-          responseDecoded: decoded,
-        ),
-      ).timeout(
-        _maxServerResponseWaitDuration,
-      );
-
-      if (response.statusCode != 200) {
-        throw Exception(
-          'Invalid response\n'
-          'Response: ${response.responseDecoded}\n',
-        );
-      }
-    } catch (ex) {
-      _logger.f(
-        'Could not send notification\n'
-        'Sent data: $reminder\n'
-        'Exception received: $ex\n',
-      );
-      rethrow;
-    }
+      ),
+      logSentData: reminder.toString(),
+      parser: (response, decoded) => response.statusCode != 200
+          ? throw Exception(
+              'Invalid response\n'
+              'Response: $decoded\n',
+            )
+          : null,
+    ).timeout(
+      _maxServerResponseWaitDuration,
+    );
   }
+
+  @override
+  Future<void> setUserDeviceToken({
+    required int userId,
+    required String deviceToken,
+  }) async {}
 }

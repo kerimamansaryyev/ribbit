@@ -33,16 +33,21 @@ final class HttpClientRequestDelegateParseException
   const HttpClientRequestDelegateParseException({
     required this.exception,
     required this.response,
+    required this.logSentData,
   });
 
   final dynamic exception;
+  final dynamic logSentData;
   final http.Response response;
 
   @override
   String toString() {
-    return 'Failed to parse the response.'
-        '\nException:$exception'
-        '\nResponse${response.body}';
+    final sentDataRow = logSentData == null ? '' : 'Sent: $logSentData\n';
+
+    return '$sentDataRow'
+        'Failed to parse the response.\n'
+        'Exception:$exception\n'
+        'Response: \n${response.body}';
   }
 }
 
@@ -57,6 +62,7 @@ final class HttpClientRequestDelegate {
   Future<T> call<T>({
     required HttpClientRequestDelegateResponseMaker responseMaker,
     required HttpClientRequestDelegateResponseParser<T> parser,
+    dynamic logSentData,
   }) async {
     final http.Response rawResponse;
     try {
@@ -72,6 +78,7 @@ final class HttpClientRequestDelegate {
       return parser(rawResponse, decoded);
     } catch (ex) {
       throw HttpClientRequestDelegateParseException(
+        logSentData: logSentData,
         exception: ex,
         response: rawResponse,
       );
