@@ -1,4 +1,4 @@
-from database.app_db import db
+from dependency.app_db import db
 
 
 class UserDeviceToken(db.Model):

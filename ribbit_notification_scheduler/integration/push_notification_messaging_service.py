@@ -1,8 +1,8 @@
 import sqlalchemy
 from firebase_admin import initialize_app, messaging, exceptions
 from flask import current_app
-from database.app_db import db
 from model.user_device_token import UserDeviceToken
+from dependency.app_db import db
 
 
 class PushNotificationMessagingService:
