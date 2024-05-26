@@ -1,9 +1,11 @@
 import 'package:injectable/injectable.dart';
 import 'package:ribbit_server/src/app/integration/jwt_authenticator.dart';
+import 'package:ribbit_server/src/app/integration/ribbit_notification_scheduler_service_delegate.dart';
 import 'package:ribbit_server/src/app/repository/user_repository.dart';
 import 'package:ribbit_server/src/app/service/result/create_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/delete_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/login_user_result.dart';
+import 'package:ribbit_server/src/app/service/result/set_user_device_token_result.dart';
 import 'package:ribbit_server/src/app/service/result/validate_user_credentials_result.dart';
 import 'package:ribbit_server/src/app/service/user_service.dart';
 
@@ -12,10 +14,12 @@ final class UserServiceImpl implements UserService {
   const UserServiceImpl(
     this._jwtAuthenticator,
     this._userRepository,
+    this._schedulerServiceDelegate,
   );
 
   final UserRepository _userRepository;
   final JWTAuthenticator _jwtAuthenticator;
+  final RibbitNotificationSchedulerServiceDelegate _schedulerServiceDelegate;
 
   @override
   Future<CreateUserResult> createUser({
@@ -65,4 +69,16 @@ final class UserServiceImpl implements UserService {
       _userRepository.deleteUserById(
         userId: userId,
       );
+
+  @override
+  Future<SetUserDeviceTokenResult> setUserDeviceToken({
+    required String userId,
+    required String deviceToken,
+  }) async {
+    await _schedulerServiceDelegate.setUserDeviceToken(
+      userId: userId,
+      deviceToken: deviceToken,
+    );
+    return const SetUserDeviceTokenSucceeded();
+  }
 }

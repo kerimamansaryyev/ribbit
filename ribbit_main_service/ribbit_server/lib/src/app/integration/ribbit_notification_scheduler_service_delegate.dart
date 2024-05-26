@@ -29,7 +29,7 @@ abstract interface class RibbitNotificationSchedulerServiceDelegate {
     RibbitNotificationSchedulerServiceDelegateScheduleReminderDTO reminder,
   );
   Future<void> setUserDeviceToken({
-    required int userId,
+    required String userId,
     required String deviceToken,
   });
 }

@@ -67,6 +67,7 @@ extension GetItInjectableX on _i1.GetIt {
     gh.singleton<_i15.UserService>(() => _i16.UserServiceImpl(
           gh<_i11.JWTAuthenticator>(),
           gh<_i7.UserRepository>(),
+          gh<_i13.RibbitNotificationSchedulerServiceDelegate>(),
         ));
     gh.singleton<_i17.ReminderService>(() => _i18.ReminderServiceImpl(
           gh<_i9.ReminderRepository>(),

@@ -5,8 +5,11 @@ import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
 import 'package:ribbit_server/src/app/entity/ribbit_notification_scheduler_login_request.dart';
 import 'package:ribbit_server/src/app/entity/ribbit_notification_scheduler_schedule_reminder_request.dart';
+import 'package:ribbit_server/src/app/entity/ribbit_notification_scheduler_set_user_device_token_request.dart';
 import 'package:ribbit_server/src/app/integration/ribbit_notification_scheduler_service_delegate.dart';
 import 'package:ribbit_server/src/app/utils/http_client_request_delegate.dart';
+
+typedef _EnvParseDelegate<T> = T Function(String val);
 
 @Singleton(
   as: RibbitNotificationSchedulerServiceDelegate,
@@ -18,6 +21,7 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
     this._schedulerAccessToken,
     this._logger,
     this._reminderScheduleEndpoint,
+    this._setUserDeviceTokenEndpoint,
   ) {
     _afterInitialization();
   }
@@ -35,9 +39,13 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
   static const _reminderScheduleEndpointEnvKey =
       'RIBBIT_NOTIFICATION_SCHEDULER_SCHEDULE_REMINDER_API_ENDPOINT';
 
+  static const _setUserDeviceTokenEndpointEnvKey =
+      'RIBBIT_NOTIFICATION_SCHEDULER_SET_USER_DEVICE_TOKEN_API_ENDPOINT';
+
   final HttpClientRequestDelegate _client;
   final String _schedulerAccessToken;
   final Uri _reminderScheduleEndpoint;
+  final Uri _setUserDeviceTokenEndpoint;
   final Logger _logger;
 
   void _afterInitialization() {
@@ -54,28 +62,45 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
     DotEnv env,
     Logger logger,
   ) async {
-    final loginEndpoint = Uri.tryParse(
-      '${env[_loginEndpointEnvKey]}',
-    );
-    if (loginEndpoint == null) {
-      throw Exception('Invalid $_loginEndpointEnvKey');
+    T getEnvOrThrow<T>({
+      required String key,
+      required _EnvParseDelegate<T> parser,
+    }) {
+      try {
+        return parser((env[key]?.toString())!);
+      } catch (_) {
+        throw Exception('Invalid $key');
+      }
     }
 
-    final reminderScheduleEndpoint = Uri.tryParse(
-      '${env[_reminderScheduleEndpointEnvKey]}',
+    final (
+      :loginEndpoint,
+      :reminderScheduleEndpoint,
+      :setUserDeviceTokenEndpoint,
+      :username,
+      :password
+    ) = (
+      loginEndpoint: getEnvOrThrow<Uri>(
+        key: _loginEndpointEnvKey,
+        parser: Uri.parse,
+      ),
+      reminderScheduleEndpoint: getEnvOrThrow<Uri>(
+        key: _reminderScheduleEndpointEnvKey,
+        parser: Uri.parse,
+      ),
+      setUserDeviceTokenEndpoint: getEnvOrThrow<Uri>(
+        key: _setUserDeviceTokenEndpointEnvKey,
+        parser: Uri.parse,
+      ),
+      username: getEnvOrThrow<String>(
+        key: _userNameEnvKey,
+        parser: (v) => v,
+      ),
+      password: getEnvOrThrow<String>(
+        key: _passwordEnvKey,
+        parser: (p) => p,
+      )
     );
-    if (reminderScheduleEndpoint == null) {
-      throw Exception('Invalid $_reminderScheduleEndpointEnvKey');
-    }
-
-    final (:username, :password) = (
-      username: env[_userNameEnvKey]?.toString(),
-      password: env[_passwordEnvKey]?.toString(),
-    );
-
-    if (username == null || password == null) {
-      throw Exception('Invalid $_userNameEnvKey or $_passwordEnvKey');
-    }
 
     return requestDelegate<RibbitNotificationSchedulerServiceDelegateImpl>(
       responseMaker: (httpClient) => httpClient.post(
@@ -96,6 +121,7 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
         data['access_token'] as String,
         logger,
         reminderScheduleEndpoint,
+        setUserDeviceTokenEndpoint,
       ),
     );
   }
@@ -135,7 +161,29 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
 
   @override
   Future<void> setUserDeviceToken({
-    required int userId,
+    required String userId,
     required String deviceToken,
-  }) async {}
+  }) async {
+    await _client<void>(
+      responseMaker: (httpClient) => httpClient.post(
+        _reminderScheduleEndpoint,
+        headers: {
+          HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+          HttpHeaders.authorizationHeader: 'Bearer $_schedulerAccessToken',
+        },
+        body: jsonEncode(
+          RibbitNotificationSchedulerSetUserDeviceTokenRequest(
+            userId: userId,
+            deviceToken: deviceToken,
+          ).toJson(),
+        ),
+      ),
+      parser: (response, decoded) => response.statusCode != 200
+          ? throw Exception(
+              'Invalid response\n'
+              'Response: $decoded\n',
+            )
+          : null,
+    );
+  }
 }
