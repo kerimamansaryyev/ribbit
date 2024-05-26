@@ -166,7 +166,7 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
   }) async {
     await _client<void>(
       responseMaker: (httpClient) => httpClient.post(
-        _reminderScheduleEndpoint,
+        _setUserDeviceTokenEndpoint,
         headers: {
           HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
           HttpHeaders.authorizationHeader: 'Bearer $_schedulerAccessToken',

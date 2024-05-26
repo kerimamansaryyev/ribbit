@@ -10,14 +10,13 @@ typedef CreateUserResponseUserDTO = ({
 
 @JsonSerializable()
 class CreateUserResponse {
-  final CreateUserResponseUserDTO user;
-
   CreateUserResponse({
     required this.user,
   });
 
   factory CreateUserResponse.fromJson(Map<String, dynamic> json) =>
       _$CreateUserResponseFromJson(json);
+  final CreateUserResponseUserDTO user;
 
   Map<String, dynamic> toJson() => _$CreateUserResponseToJson(this);
 }

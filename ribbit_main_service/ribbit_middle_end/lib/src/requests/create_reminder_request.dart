@@ -4,10 +4,6 @@ part 'create_reminder_request.g.dart';
 
 @JsonSerializable()
 class CreateReminderRequest {
-  final String title;
-  final String notes;
-  final DateTime? remindAt;
-
   const CreateReminderRequest({
     required this.title,
     required this.notes,
@@ -16,6 +12,9 @@ class CreateReminderRequest {
 
   factory CreateReminderRequest.fromJson(Map<String, dynamic> json) =>
       _$CreateReminderRequestFromJson(json);
+  final String title;
+  final String notes;
+  final DateTime? remindAt;
 
   Map<String, dynamic> toJson() => _$CreateReminderRequestToJson(this);
 }

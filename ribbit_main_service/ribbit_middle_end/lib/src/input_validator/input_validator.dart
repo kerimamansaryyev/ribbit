@@ -81,7 +81,8 @@ final class InputValidator<T> {
   // (?=.*[A-Z]): Positive lookahead to ensure at least one uppercase letter.
   // (?=.*[a-z]): Positive lookahead to ensure at least one lowercase letter.
   // (?=.*\d): Positive lookahead to ensure at least one digit.
-  // (?=.*[!@#$%^&*(),.?":{}|<>]): Positive lookahead to ensure at least one special character from the specified set.
+  // (?=.*[!@#$%^&*(),.?":{}|<>]): Positive lookahead to ensure
+  // at least one special character from the specified set.
   //     .{8,}: Ensures the password is at least 8 characters long.
   // $: Asserts the position at the end of the string.
   static InputValidator<String> password(String fieldName, String input) =>

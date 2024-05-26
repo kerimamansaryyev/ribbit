@@ -5,9 +5,6 @@ part 'error_response.g.dart';
 
 @JsonSerializable()
 class ErrorResponse {
-  final String message;
-  final RibbitServerErrorCode ribbitServerErrorCode;
-
   const ErrorResponse({
     required this.message,
     required this.ribbitServerErrorCode,
@@ -15,6 +12,8 @@ class ErrorResponse {
 
   factory ErrorResponse.fromJson(Map<String, dynamic> json) =>
       _$ErrorResponseFromJson(json);
+  final String message;
+  final RibbitServerErrorCode ribbitServerErrorCode;
 
   Map<String, dynamic> toJson() => _$ErrorResponseToJson(this);
 }

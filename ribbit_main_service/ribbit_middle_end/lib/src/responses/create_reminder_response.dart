@@ -11,14 +11,13 @@ typedef CreateReminderResponseReminderDTO = ({
 
 @JsonSerializable()
 class CreateReminderResponse {
-  final CreateReminderResponseReminderDTO reminder;
-
   CreateReminderResponse({
     required this.reminder,
   });
 
   factory CreateReminderResponse.fromJson(Map<String, dynamic> json) =>
       _$CreateReminderResponseFromJson(json);
+  final CreateReminderResponseReminderDTO reminder;
 
   Map<String, dynamic> toJson() => _$CreateReminderResponseToJson(this);
 }

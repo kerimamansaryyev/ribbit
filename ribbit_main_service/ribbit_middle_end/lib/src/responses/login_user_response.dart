@@ -10,9 +10,6 @@ typedef LoginUserResponseUserDTO = ({
 
 @JsonSerializable()
 class LoginUserResponse {
-  final LoginUserResponseUserDTO user;
-  final String? accessToken;
-
   LoginUserResponse({
     required this.user,
     required this.accessToken,
@@ -20,6 +17,8 @@ class LoginUserResponse {
 
   factory LoginUserResponse.fromJson(Map<String, dynamic> json) =>
       _$LoginUserResponseFromJson(json);
+  final LoginUserResponseUserDTO user;
+  final String? accessToken;
 
   Map<String, dynamic> toJson() => _$LoginUserResponseToJson(this);
 }

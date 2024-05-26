@@ -5,6 +5,7 @@ analyzer:
     strict-inference: true
     strict-raw-types: true
   exclude:
+    - '**.g.dart'
     - build/**
     - lib/src/prisma/generated/**
 linter:
