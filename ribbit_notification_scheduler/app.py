@@ -14,7 +14,6 @@ import logging
 from integration.push_notification_messaging_service import PushNotificationMessagingService
 from dependency.app_db import db
 
-
 push_notification_messaging_service = PushNotificationMessagingService()
 
 
@@ -55,11 +54,7 @@ def create_app():
         user_id = json_data.get('user_id')
         device_token = json_data.get('device_token')
 
-        try:
-            user_id = str(user_id)
-            device_token = str(device_token)
-
-        except ValueError:
+        if not user_id or not device_token:
             return jsonify({'error': 'user_id or device_token were not provided'}), 400
 
         with app_inner.app_context():
