@@ -137,6 +137,7 @@ final class UserController with BaseControllerMixin {
               ).toJson(),
             ),
           LoginUserFailed() => Response.json(
+              statusCode: 401,
               body: const ErrorResponse(
                 ribbitServerErrorCode: RibbitServerErrorCode.loginFailed,
                 message: 'Login Failed',
