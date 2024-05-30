@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ribbit_server/src/app/repository/exception/expected_repository_exception.dart';
 import 'package:ribbit_server/src/prisma/generated/client.dart';
 
 typedef DatabaseAction<T> = Future<T> Function();
@@ -13,9 +14,11 @@ mixin BaseRepositoryMixin {
   Future<T> preventConnectionLeak<T>(DatabaseAction<T> action) async {
     try {
       return await action();
-    } catch (_) {
-      await _prismaClient.$disconnect();
-      _replaceClient();
+    } catch (ex) {
+      if (ex is! ExpectedRepositoryException) {
+        await _prismaClient.$disconnect();
+        _replaceClient();
+      }
       rethrow;
     }
   }

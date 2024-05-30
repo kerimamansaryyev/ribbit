@@ -27,13 +27,13 @@ final class UserRepositoryGetUserByIdDTO {
 }
 
 abstract interface class UserRepository {
-  Future<CreateUserResult> createUser({
+  Future<UserRepositoryCreateUserDTO> createUser({
     required String email,
     required String password,
     required String firstName,
   });
 
-  Future<ValidateUserCredentialsResult> validateUserCredentials({
+  Future<UserRepositoryValidateUserCredentialsDTO> validateUserCredentials({
     required String email,
     required String password,
   });
@@ -42,7 +42,7 @@ abstract interface class UserRepository {
     required String userId,
   });
 
-  Future<DeleteUserResult> deleteUserById({
+  Future<void> deleteUserById({
     required String userId,
   });
 }

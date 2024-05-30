@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:injectable/injectable.dart';
 import 'package:orm/orm.dart';
+import 'package:ribbit_server/src/app/repository/exception/create_user_exception.dart';
+import 'package:ribbit_server/src/app/repository/exception/delete_user_by_id_exception.dart';
+import 'package:ribbit_server/src/app/repository/exception/validate_user_credentials_exception.dart';
 import 'package:ribbit_server/src/app/repository/mixin/base_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/mixin/encrypted_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/user_repository.dart';
-import 'package:ribbit_server/src/app/service/result/create_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/delete_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/validate_user_credentials_result.dart';
 import 'package:ribbit_server/src/prisma/generated/client.dart';
@@ -17,7 +19,7 @@ final class UserRepositoryImpl
     with BaseRepositoryMixin, EncryptedRepositoryMixin
     implements UserRepository {
   @override
-  Future<CreateUserResult> createUser({
+  Future<UserRepositoryCreateUserDTO> createUser({
     required String email,
     required String password,
     required String firstName,
@@ -35,8 +37,7 @@ final class UserRepositoryImpl
           );
 
           if (user != null) {
-            await tx.$transaction.commit();
-            return const CreateUserAlreadyExists();
+            throw const CreateUserAlreadyExistsException();
           }
 
           final createdUser = await tx.user.create(
@@ -49,12 +50,10 @@ final class UserRepositoryImpl
             ),
           );
 
-          final result = CreateUserSuccessfullyCreated(
-            user: (
-              id: createdUser.id!,
-              email: createdUser.email!,
-              firstName: createdUser.firstName!,
-            ),
+          final result = (
+            id: createdUser.id!,
+            email: createdUser.email!,
+            firstName: createdUser.firstName!,
           );
 
           await tx.$transaction.commit();
@@ -67,7 +66,7 @@ final class UserRepositoryImpl
       });
 
   @override
-  Future<ValidateUserCredentialsResult> validateUserCredentials({
+  Future<UserRepositoryValidateUserCredentialsDTO> validateUserCredentials({
     required String email,
     required String password,
   }) =>
@@ -87,15 +86,13 @@ final class UserRepositoryImpl
           if (user == null ||
               userPassword == null ||
               !validateString(given: password, hashed: userPassword)) {
-            return const ValidateUserCredentialsNotValid();
+            return throw const ValidateUserCredentialsInvalidException();
           }
 
-          return ValidateUserCredentialsSucceeded(
-            user: (
-              id: user.id!,
-              email: user.email!,
-              firstName: user.firstName!
-            ),
+          return (
+            id: user.id!,
+            email: user.email!,
+            firstName: user.firstName!,
           );
         },
       );
@@ -128,7 +125,7 @@ final class UserRepositoryImpl
       );
 
   @override
-  Future<DeleteUserResult> deleteUserById({
+  Future<void> deleteUserById({
     required String userId,
   }) =>
       preventConnectionLeak(() async {
@@ -144,8 +141,7 @@ final class UserRepositoryImpl
           );
 
           if (user == null) {
-            await tx.$transaction.commit();
-            return const DeleteUserNotFound();
+            throw const DeleteUserByIdNotFoundException();
           }
 
           await tx.user.delete(
@@ -154,8 +150,6 @@ final class UserRepositoryImpl
             ),
           );
           await tx.$transaction.commit();
-
-          return const DeleteUserDeleted();
         } catch (_) {
           await tx.$transaction.rollback();
           rethrow;
