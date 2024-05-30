@@ -32,7 +32,9 @@ final class ReminderServiceImpl implements ReminderService {
       beforeCommitHandler: _scheduleReminder,
     );
 
-    return result;
+    return CreateReminderSuccessfullyCreated(
+      reminder: result,
+    );
   }
 
   Future<void> _scheduleReminder(

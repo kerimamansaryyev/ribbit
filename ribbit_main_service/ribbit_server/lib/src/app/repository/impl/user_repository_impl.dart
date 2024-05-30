@@ -8,8 +8,6 @@ import 'package:ribbit_server/src/app/repository/exception/validate_user_credent
 import 'package:ribbit_server/src/app/repository/mixin/base_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/mixin/encrypted_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/user_repository.dart';
-import 'package:ribbit_server/src/app/service/result/delete_user_result.dart';
-import 'package:ribbit_server/src/app/service/result/validate_user_credentials_result.dart';
 import 'package:ribbit_server/src/prisma/generated/client.dart';
 import 'package:ribbit_server/src/prisma/generated/prisma.dart';
 

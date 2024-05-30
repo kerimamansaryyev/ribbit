@@ -1,7 +1,3 @@
-import 'package:ribbit_server/src/app/service/result/create_user_result.dart';
-import 'package:ribbit_server/src/app/service/result/delete_user_result.dart';
-import 'package:ribbit_server/src/app/service/result/validate_user_credentials_result.dart';
-
 typedef UserRepositoryCreateUserDTO = ({
   String id,
   String email,

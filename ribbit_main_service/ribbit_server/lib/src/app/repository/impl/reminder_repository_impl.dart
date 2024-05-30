@@ -2,7 +2,6 @@ import 'package:injectable/injectable.dart';
 import 'package:orm/orm.dart';
 import 'package:ribbit_server/src/app/repository/mixin/base_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/reminder_repository.dart';
-import 'package:ribbit_server/src/app/service/result/create_reminder_result.dart';
 import 'package:ribbit_server/src/prisma/generated/prisma.dart';
 
 @Singleton(as: ReminderRepository)
@@ -10,7 +9,7 @@ final class ReminderRepositoryImpl
     with BaseRepositoryMixin
     implements ReminderRepository {
   @override
-  Future<CreateReminderResult> createReminder({
+  Future<ReminderRepositoryCreateReminderDTO> createReminder({
     required String userId,
     required String title,
     required String notes,
@@ -44,18 +43,16 @@ final class ReminderRepositoryImpl
               ),
             );
 
-            final successResult = CreateReminderSuccessfullyCreated(
-              reminder: (
-                id: reminder.id!,
-                userId: reminder.userId!,
-                title: reminder.title!,
-                notes: reminder.notes!,
-                remindAt: remindAt,
-              ),
+            final successResult = (
+              id: reminder.id!,
+              userId: reminder.userId!,
+              title: reminder.title!,
+              notes: reminder.notes!,
+              remindAt: remindAt,
             );
 
             await beforeCommitHandler(
-              successResult.reminder,
+              successResult,
             );
 
             await tx.$transaction.commit();
