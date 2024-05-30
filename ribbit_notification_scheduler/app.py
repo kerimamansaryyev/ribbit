@@ -58,6 +58,9 @@ def create_app():
             return jsonify({'error': 'user_id or device_token were not provided'}), 400
 
         with app_inner.app_context():
+            user_device_token = UserDeviceToken.query.filter_by(token=device_token).first()
+            if user_device_token:
+                db.session.delete(user_device_token)
             db.session.merge(UserDeviceToken(external_user_id=user_id, token=device_token))
             db.session.commit()
 
