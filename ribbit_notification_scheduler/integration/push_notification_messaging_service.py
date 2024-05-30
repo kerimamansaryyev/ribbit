@@ -17,7 +17,7 @@ class PushNotificationMessagingService:
             try:
                 device_token = db.session.get(UserDeviceToken, user_id)
             except sqlalchemy.orm.exc.ObjectDeletedError:
-                current_app.logger.exception(f"Token for the user{user_id} was not found")
+                current_app.logger.exception(f"Token for the user {user_id} is deleted")
                 return
         if not device_token:
             current_app.logger.exception(f"Token for the user{user_id} was not found")

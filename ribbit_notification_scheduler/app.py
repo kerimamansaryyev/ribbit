@@ -63,6 +63,22 @@ def create_app():
 
         return jsonify({'message': 'The device token was registered'}), 200
 
+    @app_inner.route(rule='/api/device_token', methods=['DELETE'])
+    def delete_device_token():
+        json_data = request.get_json(silent=True) or {}
+        user_id = json_data.get('user_id')
+
+        if not user_id:
+            return jsonify({'error': 'user_id was not provided'}), 400
+
+        with app_inner.app_context():
+            user_device_token = UserDeviceToken.query.get(user_id)
+            if user_device_token:
+                db.session.delete(user_device_token)
+                db.session.commit()
+
+        return jsonify({'message': 'The device token was registered'}), 200
+
     @app_inner.route('/api/schedule/reminder', methods=['POST'])
     @jwt_required()
     def schedule_reminder():
