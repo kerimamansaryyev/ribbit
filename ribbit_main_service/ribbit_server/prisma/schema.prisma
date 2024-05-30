@@ -20,6 +20,8 @@ model User {
   password  String
   firstName String
   reminders Reminder[]
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
 }
 
 model Reminder {
