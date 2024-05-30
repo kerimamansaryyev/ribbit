@@ -80,7 +80,7 @@ def create_app():
                 db.session.delete(user_device_token)
                 db.session.commit()
 
-        return jsonify({'message': 'The device token was registered'}), 200
+        return jsonify({'message': 'The device token was deleted'}), 200
 
     @app_inner.route('/api/schedule/reminder', methods=['POST'])
     @jwt_required()
