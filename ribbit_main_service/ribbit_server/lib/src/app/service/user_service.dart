@@ -1,5 +1,6 @@
 import 'package:ribbit_server/src/app/repository/user_repository.dart';
 import 'package:ribbit_server/src/app/service/result/create_user_result.dart';
+import 'package:ribbit_server/src/app/service/result/delete_user_device_token_result.dart';
 import 'package:ribbit_server/src/app/service/result/delete_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/login_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/set_user_device_token_result.dart';
@@ -29,5 +30,9 @@ abstract interface class UserService {
   Future<SetUserDeviceTokenResult> setUserDeviceToken({
     required String userId,
     required String deviceToken,
+  });
+
+  Future<DeleteUserDeviceTokenResult> deleteUserDeviceToken({
+    required String userId,
   });
 }

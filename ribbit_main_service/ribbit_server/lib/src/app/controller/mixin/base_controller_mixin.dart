@@ -37,6 +37,10 @@ abstract final class ErrorResponseFactory {
         ).toJson(),
       );
 
+  static Response invalidRequestMethod() => invalidRequestFormat(
+        'Invalid request method',
+      );
+
   static Response invalidInput(
     String inputFieldName,
   ) =>

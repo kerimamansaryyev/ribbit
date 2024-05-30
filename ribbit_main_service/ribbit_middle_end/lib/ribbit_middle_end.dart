@@ -9,4 +9,5 @@ export 'src/responses/delete_own_user_account_response.dart';
 export 'src/responses/device_check_in_response.dart';
 export 'src/responses/error_response.dart';
 export 'src/responses/login_user_response.dart';
+export 'src/responses/logout_user_response.dart';
 export 'src/ribbit_server_error_code.dart';

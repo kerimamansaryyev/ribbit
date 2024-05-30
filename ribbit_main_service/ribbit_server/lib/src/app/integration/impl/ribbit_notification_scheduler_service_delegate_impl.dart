@@ -198,9 +198,9 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
       );
 
   @override
-  Future<void> removeUserDeviceToken({required String userId}) async =>
+  Future<void> deleteUserDeviceToken({required String userId}) async =>
       _client<void>(
-        responseMaker: (httpClient) => httpClient.post(
+        responseMaker: (httpClient) => httpClient.delete(
           _deleteUserDeviceTokenEndpoint,
           headers: {
             HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
