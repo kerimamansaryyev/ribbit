@@ -8,6 +8,7 @@ import 'package:ribbit_server/src/app/controller/mixin/base_controller_mixin.dar
 import 'package:ribbit_server/src/app/service/result/create_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/delete_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/login_user_result.dart';
+import 'package:ribbit_server/src/app/service/result/set_user_device_token_result.dart';
 import 'package:ribbit_server/src/app/service/user_service.dart';
 
 /// Handling requests upon User
@@ -147,4 +148,23 @@ final class UserController with BaseControllerMixin {
       },
     );
   }
+
+  Future<Response> deviceCheckIn(
+    RequestContext requestContext,
+  ) async =>
+      requestContext.handleAsJson<DeviceCheckInRequest>(
+        applyInputValidators: null,
+        parser: (context, decoded) => DeviceCheckInRequest.fromJson(decoded),
+        responseDispatcher: (context, deviceCheckInRequest) async =>
+            switch (await _userService.setUserDeviceToken(
+          userId: getCurrentUserByRequest(context).id,
+          deviceToken: deviceCheckInRequest.deviceUserToken,
+        )) {
+          SetUserDeviceTokenSucceeded() => Response.json(
+              body: const DeviceCheckInResponse(
+                message: 'Device Token Has Successfully been saved',
+              ).toJson(),
+            ),
+        },
+      );
 }
