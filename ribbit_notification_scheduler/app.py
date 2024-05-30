@@ -58,7 +58,7 @@ def create_app():
             return jsonify({'error': 'user_id or device_token were not provided'}), 400
 
         with app_inner.app_context():
-            db.session.merge(UserDeviceToken(user_id=user_id, device_token=device_token))
+            db.session.merge(UserDeviceToken(external_user_id=user_id, token=device_token))
             db.session.commit()
 
         return jsonify({'message': 'The device token was registered'}), 200
