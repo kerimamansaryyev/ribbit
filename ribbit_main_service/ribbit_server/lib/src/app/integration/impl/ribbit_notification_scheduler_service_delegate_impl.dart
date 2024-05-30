@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dotenv/dotenv.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
+import 'package:ribbit_server/src/app/entity/ribbit_notification_scheduler_delete_user_device_token_request.dart';
 import 'package:ribbit_server/src/app/entity/ribbit_notification_scheduler_login_request.dart';
 import 'package:ribbit_server/src/app/entity/ribbit_notification_scheduler_schedule_reminder_request.dart';
 import 'package:ribbit_server/src/app/entity/ribbit_notification_scheduler_set_user_device_token_request.dart';
@@ -22,6 +23,7 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
     this._logger,
     this._reminderScheduleEndpoint,
     this._setUserDeviceTokenEndpoint,
+    this._deleteUserDeviceTokenEndpoint,
   ) {
     _afterInitialization();
   }
@@ -42,10 +44,14 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
   static const _setUserDeviceTokenEndpointEnvKey =
       'RIBBIT_NOTIFICATION_SCHEDULER_SET_USER_DEVICE_TOKEN_API_ENDPOINT';
 
+  static const _deleteUserDeviceTokenEndpointEnvKey =
+      'RIBBIT_NOTIFICATION_SCHEDULER_DELETE_USER_DEVICE_TOKEN_API_ENDPOINT';
+
   final HttpClientRequestDelegate _client;
   final String _schedulerAccessToken;
   final Uri _reminderScheduleEndpoint;
   final Uri _setUserDeviceTokenEndpoint;
+  final Uri _deleteUserDeviceTokenEndpoint;
   final Logger _logger;
 
   void _afterInitialization() {
@@ -78,7 +84,8 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
       :reminderScheduleEndpoint,
       :setUserDeviceTokenEndpoint,
       :username,
-      :password
+      :password,
+      :deleteUserDeviceTokenEndpoint
     ) = (
       loginEndpoint: getEnvOrThrow<Uri>(
         key: _loginEndpointEnvKey,
@@ -99,7 +106,11 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
       password: getEnvOrThrow<String>(
         key: _passwordEnvKey,
         parser: (p) => p,
-      )
+      ),
+      deleteUserDeviceTokenEndpoint: getEnvOrThrow<Uri>(
+        key: _deleteUserDeviceTokenEndpointEnvKey,
+        parser: Uri.parse,
+      ),
     );
 
     return requestDelegate<RibbitNotificationSchedulerServiceDelegateImpl>(
@@ -122,6 +133,7 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
         logger,
         reminderScheduleEndpoint,
         setUserDeviceTokenEndpoint,
+        deleteUserDeviceTokenEndpoint,
       ),
     );
   }
@@ -129,61 +141,82 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
   @override
   Future<void> scheduleReminder(
     RibbitNotificationSchedulerServiceDelegateScheduleReminderDTO reminder,
-  ) async {
-    await _client<void>(
-      responseMaker: (httpClient) => httpClient.post(
-        _reminderScheduleEndpoint,
-        headers: {
-          HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-          HttpHeaders.authorizationHeader: 'Bearer $_schedulerAccessToken',
-        },
-        body: jsonEncode(
-          RibbitNotificationSchedulerScheduleReminderRequest(
-            reminderId: reminder.reminderId.toString(),
-            reminderDate: reminder.reminderDate.toLocal().toUtc(),
-            reminderTitle: reminder.reminderTitle,
-            reminderDescription: reminder.reminderDescription,
-            userId: reminder.userId,
-          ).toJson(),
+  ) =>
+      _client<void>(
+        responseMaker: (httpClient) => httpClient.post(
+          _reminderScheduleEndpoint,
+          headers: {
+            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+            HttpHeaders.authorizationHeader: 'Bearer $_schedulerAccessToken',
+          },
+          body: jsonEncode(
+            RibbitNotificationSchedulerScheduleReminderRequest(
+              reminderId: reminder.reminderId.toString(),
+              reminderDate: reminder.reminderDate.toLocal().toUtc(),
+              reminderTitle: reminder.reminderTitle,
+              reminderDescription: reminder.reminderDescription,
+              userId: reminder.userId,
+            ).toJson(),
+          ),
         ),
-      ),
-      logSentData: reminder.toString(),
-      parser: (response, decoded) => response.statusCode != 200
-          ? throw Exception(
-              'Invalid response\n'
-              'Response: $decoded\n',
-            )
-          : null,
-    ).timeout(
-      _maxServerResponseWaitDuration,
-    );
-  }
+        logSentData: reminder.toString(),
+        parser: (response, decoded) => response.statusCode != 200
+            ? throw Exception(
+                'Invalid response\n'
+                'Response: $decoded\n',
+              )
+            : null,
+      ).timeout(
+        _maxServerResponseWaitDuration,
+      );
 
   @override
   Future<void> setUserDeviceToken({
     required String userId,
     required String deviceToken,
-  }) async {
-    await _client<void>(
-      responseMaker: (httpClient) => httpClient.post(
-        _setUserDeviceTokenEndpoint,
-        headers: {
-          HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-          HttpHeaders.authorizationHeader: 'Bearer $_schedulerAccessToken',
-        },
-        body: jsonEncode(
-          RibbitNotificationSchedulerSetUserDeviceTokenRequest(
-            userId: userId,
-            deviceToken: deviceToken,
-          ).toJson(),
+  }) =>
+      _client<void>(
+        responseMaker: (httpClient) => httpClient.post(
+          _setUserDeviceTokenEndpoint,
+          headers: {
+            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+            HttpHeaders.authorizationHeader: 'Bearer $_schedulerAccessToken',
+          },
+          body: jsonEncode(
+            RibbitNotificationSchedulerSetUserDeviceTokenRequest(
+              userId: userId,
+              deviceToken: deviceToken,
+            ).toJson(),
+          ),
         ),
-      ),
-      parser: (response, decoded) => response.statusCode != 200
-          ? throw Exception(
-              'Invalid response\n'
-              'Response: $decoded\n',
-            )
-          : null,
-    );
-  }
+        parser: (response, decoded) => response.statusCode != 200
+            ? throw Exception(
+                'Invalid response\n'
+                'Response: $decoded\n',
+              )
+            : null,
+      );
+
+  @override
+  Future<void> removeUserDeviceToken({required String userId}) async =>
+      _client<void>(
+        responseMaker: (httpClient) => httpClient.post(
+          _deleteUserDeviceTokenEndpoint,
+          headers: {
+            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+            HttpHeaders.authorizationHeader: 'Bearer $_schedulerAccessToken',
+          },
+          body: jsonEncode(
+            RibbitNotificationSchedulerDeleteUserDeviceTokenRequest(
+              userId: userId,
+            ).toJson(),
+          ),
+        ),
+        parser: (response, decoded) => response.statusCode != 200
+            ? throw Exception(
+                'Invalid response\n'
+                'Response: $decoded\n',
+              )
+            : null,
+      );
 }

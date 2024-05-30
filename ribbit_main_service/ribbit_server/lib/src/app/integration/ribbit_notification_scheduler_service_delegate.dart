@@ -32,4 +32,7 @@ abstract interface class RibbitNotificationSchedulerServiceDelegate {
     required String userId,
     required String deviceToken,
   });
+  Future<void> removeUserDeviceToken({
+    required String userId,
+  });
 }
