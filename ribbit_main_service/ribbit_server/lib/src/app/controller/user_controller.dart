@@ -83,39 +83,34 @@ final class UserController with BaseControllerMixin {
   }
 
   Future<Response> deleteOwnUserAccount(RequestContext requestContext) async {
-    switch (requestContext.request.method) {
-      case HttpMethod.delete:
-        final userId = getCurrentUserByRequest(requestContext).id;
+    final userId = getCurrentUserByRequest(requestContext).id;
 
-        final ifDeviceTokenDeleted = await _userService.deleteUserDeviceToken(
+    final ifDeviceTokenDeleted = await _userService.deleteUserDeviceToken(
+      userId: userId,
+    );
+
+    switch (ifDeviceTokenDeleted) {
+      case DeleteUserDeviceTokenSucceeded():
+        final ifUserDeleted = await _userService.deleteUserById(
           userId: userId,
         );
 
-        switch (ifDeviceTokenDeleted) {
-          case DeleteUserDeviceTokenSucceeded():
-            final ifUserDeleted = await _userService.deleteUserById(
-              userId: userId,
+        switch (ifUserDeleted) {
+          case DeleteUserDeleted():
+            return Response.json(
+              body: DeleteOwnUserAccountResponse(
+                message: 'Account successfully deleted',
+              ).toJson(),
             );
-
-            switch (ifUserDeleted) {
-              case DeleteUserDeleted():
-                return Response.json(
-                  body: DeleteOwnUserAccountResponse(
-                    message: 'Account successfully deleted',
-                  ).toJson(),
-                );
-              case DeleteUserNotFound():
-                return Response.json(
-                  statusCode: HttpStatus.notFound,
-                  body: const ErrorResponse(
-                    ribbitServerErrorCode: RibbitServerErrorCode.userNotFound,
-                    message: 'User has not been found',
-                  ).toJson(),
-                );
-            }
+          case DeleteUserNotFound():
+            return Response.json(
+              statusCode: HttpStatus.notFound,
+              body: const ErrorResponse(
+                ribbitServerErrorCode: RibbitServerErrorCode.userNotFound,
+                message: 'User has not been found',
+              ).toJson(),
+            );
         }
-      case _:
-        return ErrorResponseFactory.invalidRequestMethod();
     }
   }
 
@@ -181,19 +176,14 @@ final class UserController with BaseControllerMixin {
   Future<Response> logout(
     RequestContext requestContext,
   ) async {
-    switch (requestContext.request.method) {
-      case HttpMethod.post:
-        return switch (await _userService.deleteUserDeviceToken(
-          userId: getCurrentUserByRequest(requestContext).id,
-        )) {
-          DeleteUserDeviceTokenSucceeded() => Response.json(
-              body: LogoutUserResponse(
-                message: 'User has successfully been logged out',
-              ).toJson(),
-            ),
-        };
-      case _:
-        return ErrorResponseFactory.invalidRequestMethod();
-    }
+    return switch (await _userService.deleteUserDeviceToken(
+      userId: getCurrentUserByRequest(requestContext).id,
+    )) {
+      DeleteUserDeviceTokenSucceeded() => Response.json(
+          body: LogoutUserResponse(
+            message: 'User has successfully been logged out',
+          ).toJson(),
+        ),
+    };
   }
 }

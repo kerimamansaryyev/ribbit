@@ -4,11 +4,13 @@ import 'package:ribbit_server/src/app/controller/mixin/base_controller_mixin.dar
 import 'package:ribbit_server/src/app/controller/reminder_controller.dart';
 import 'package:ribbit_server/src/injectable_config/di_init.dart';
 
+RequestHandlerPerMethod? _handlerPerMethod;
+
 FutureOr<Response> onRequest(RequestContext context) =>
-    switch (context.request.method) {
-      HttpMethod.patch =>
-        appServiceLocator<ReminderController>().updateReminderContent(context),
-      _ => Future.value(
-          ErrorResponseFactory.invalidRequestMethod(),
-        ),
-    };
+    BaseControllerMixin.allowRequestHandlerPerRequestMethod(
+      context,
+      handlers: _handlerPerMethod ??= {
+        HttpMethod.patch:
+            appServiceLocator.get<ReminderController>().updateReminderContent,
+      },
+    );

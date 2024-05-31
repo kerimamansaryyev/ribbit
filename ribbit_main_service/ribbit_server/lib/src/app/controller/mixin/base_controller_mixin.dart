@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:logger/logger.dart';
@@ -7,10 +8,11 @@ import 'package:ribbit_server/src/app/service/user_service.dart';
 import 'package:ribbit_server/src/injectable_config/di_init.dart';
 import 'package:ribbit_server/src/prisma/generated/model.dart';
 
-typedef ResponsePerformer = Future<Response> Function();
 typedef AuthenticationMiddleWareAuthenticator = Future<User?> Function(
   String token,
 );
+typedef RequestHandler = FutureOr<Response> Function(RequestContext context);
+typedef RequestHandlerPerMethod = Map<HttpMethod, RequestHandler>;
 
 abstract final class ErrorResponseFactory {
   static Response unexpected() => Response.json(
@@ -54,6 +56,18 @@ abstract final class ErrorResponseFactory {
 }
 
 mixin BaseControllerMixin {
+  UserRepositoryGetUserByIdDTO getCurrentUserByRequest(
+    RequestContext context,
+  ) =>
+      context.read<UserRepositoryGetUserByIdDTO>();
+
+  static FutureOr<Response> allowRequestHandlerPerRequestMethod(
+    RequestContext context, {
+    required RequestHandlerPerMethod handlers,
+  }) =>
+      handlers[context.request.method]?.call(context) ??
+      ErrorResponseFactory.invalidRequestMethod();
+
   static InputValidator<dynamic>? validateInputs(
     List<InputValidator<dynamic>> validators,
   ) {
@@ -64,11 +78,6 @@ mixin BaseControllerMixin {
     }
     return null;
   }
-
-  UserRepositoryGetUserByIdDTO getCurrentUserByRequest(
-    RequestContext context,
-  ) =>
-      context.read<UserRepositoryGetUserByIdDTO>();
 
   static Handler authenticationMiddleWare(Handler handler) =>
       (requestContext) async {
