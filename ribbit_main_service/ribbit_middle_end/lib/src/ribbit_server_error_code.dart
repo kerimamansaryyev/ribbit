@@ -10,6 +10,8 @@ enum RibbitServerErrorCode {
   userAlreadyExists('USER_ALREADY_EXISTS'),
   unauthorized('UNAUTHORIZED'),
   userNotFound('USER_NOT_FOUNT'),
+  reminderNotFound('REMINDER_NOT_FOUND'),
+  reminderLostUpdate('REMINDER_LOST_UPDATE'),
   invalidInput('INVALID_INPUT');
 
   const RibbitServerErrorCode(

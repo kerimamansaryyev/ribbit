@@ -151,7 +151,7 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
           },
           body: jsonEncode(
             RibbitNotificationSchedulerScheduleReminderRequest(
-              reminderId: reminder.reminderId.toString(),
+              reminderId: reminder.reminderId,
               reminderDate: reminder.reminderDate.toLocal().toUtc(),
               reminderTitle: reminder.reminderTitle,
               reminderDescription: reminder.reminderDescription,

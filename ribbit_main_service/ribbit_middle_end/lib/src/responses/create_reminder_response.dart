@@ -3,6 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'create_reminder_response.g.dart';
 
 typedef CreateReminderResponseReminderDTO = ({
+  String? reminderId,
   String? userId,
   String? title,
   String? notes,

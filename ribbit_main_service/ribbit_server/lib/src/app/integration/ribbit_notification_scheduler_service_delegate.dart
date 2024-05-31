@@ -7,7 +7,7 @@ final class RibbitNotificationSchedulerServiceDelegateScheduleReminderDTO {
     required this.userId,
   });
 
-  final int reminderId;
+  final String reminderId;
   final DateTime reminderDate;
   final String reminderTitle;
   final String reminderDescription;

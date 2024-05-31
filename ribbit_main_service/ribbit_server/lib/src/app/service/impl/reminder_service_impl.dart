@@ -1,9 +1,19 @@
 import 'dart:math' as math;
 import 'package:injectable/injectable.dart';
 import 'package:ribbit_server/src/app/integration/ribbit_notification_scheduler_service_delegate.dart';
+import 'package:ribbit_server/src/app/repository/exception/update_reminder_content_exception.dart';
 import 'package:ribbit_server/src/app/repository/reminder_repository.dart';
 import 'package:ribbit_server/src/app/service/reminder_service.dart';
 import 'package:ribbit_server/src/app/service/result/create_reminder_result.dart';
+import 'package:ribbit_server/src/app/service/result/update_reminder_content_result.dart';
+
+typedef _ScheduleReminderDTO = ({
+  String id,
+  String userId,
+  String title,
+  String notes,
+  DateTime? remindAt,
+});
 
 @Singleton(as: ReminderService)
 final class ReminderServiceImpl implements ReminderService {
@@ -37,8 +47,33 @@ final class ReminderServiceImpl implements ReminderService {
     );
   }
 
+  @override
+  Future<UpdateReminderContentResult> updateReminderContent({
+    required String reminderId,
+    required String? title,
+    required String? notes,
+  }) async {
+    try {
+      return UpdateReminderContentSucceeded(
+        reminder: await _reminderRepository.updateReminderContent(
+          reminderId: reminderId,
+          title: title,
+          notes: notes,
+          beforeCommitHandler: _scheduleReminder,
+        ),
+      );
+    } on UpdateReminderContentException catch (ex) {
+      switch (ex) {
+        case UpdateReminderContentNotFoundException():
+          return const UpdateReminderContentNotFound();
+        case UpdateReminderContentUpdateNotFoundException():
+          return const UpdateReminderContentLostUpdate();
+      }
+    }
+  }
+
   Future<void> _scheduleReminder(
-    ReminderRepositoryCreateReminderDTO reminder,
+    _ScheduleReminderDTO reminder,
   ) async {
     final remindAt = reminder.remindAt;
 

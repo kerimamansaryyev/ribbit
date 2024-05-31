@@ -2,7 +2,15 @@ import 'dart:async';
 import 'package:ribbit_server/src/app/repository/mixin/base_repository_mixin.dart';
 
 typedef ReminderRepositoryCreateReminderDTO = ({
-  int id,
+  String id,
+  String userId,
+  String title,
+  String notes,
+  DateTime? remindAt,
+});
+
+typedef ReminderRepositoryUpdateReminderContentDTO = ({
+  String id,
   String userId,
   String title,
   String notes,
@@ -19,6 +27,15 @@ abstract interface class ReminderRepository {
     required String title,
     required String notes,
     required DateTime? remindAt,
+    required BaseRepositoryBeforeCommitDelegate<
+            ReminderRepositoryCreateReminderDTO>
+        beforeCommitHandler,
+  });
+
+  Future<ReminderRepositoryUpdateReminderContentDTO> updateReminderContent({
+    required String reminderId,
+    required String? title,
+    required String? notes,
     required BaseRepositoryBeforeCommitDelegate<
             ReminderRepositoryCreateReminderDTO>
         beforeCommitHandler,

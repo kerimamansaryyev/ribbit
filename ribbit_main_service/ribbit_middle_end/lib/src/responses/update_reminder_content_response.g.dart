@@ -1,14 +1,14 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'create_reminder_response.dart';
+part of 'update_reminder_content_response.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-CreateReminderResponse _$CreateReminderResponseFromJson(
+UpdateReminderContentResponse _$UpdateReminderContentResponseFromJson(
         Map<String, dynamic> json) =>
-    CreateReminderResponse(
+    UpdateReminderContentResponse(
       reminder: _$recordConvert(
         json['reminder'],
         ($jsonValue) => (
@@ -23,8 +23,8 @@ CreateReminderResponse _$CreateReminderResponseFromJson(
       ),
     );
 
-Map<String, dynamic> _$CreateReminderResponseToJson(
-        CreateReminderResponse instance) =>
+Map<String, dynamic> _$UpdateReminderContentResponseToJson(
+        UpdateReminderContentResponse instance) =>
     <String, dynamic>{
       'reminder': <String, dynamic>{
         'notes': instance.reminder.notes,

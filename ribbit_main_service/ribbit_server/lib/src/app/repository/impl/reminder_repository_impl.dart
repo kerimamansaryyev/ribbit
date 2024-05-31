@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:orm/orm.dart';
+import 'package:ribbit_server/src/app/repository/exception/update_reminder_content_exception.dart';
 import 'package:ribbit_server/src/app/repository/mixin/base_repository_mixin.dart';
 import 'package:ribbit_server/src/app/repository/reminder_repository.dart';
 import 'package:ribbit_server/src/prisma/generated/prisma.dart';
@@ -58,6 +59,72 @@ final class ReminderRepositoryImpl
             await tx.$transaction.commit();
 
             return successResult;
+          } catch (_) {
+            await tx.$transaction.rollback();
+            rethrow;
+          }
+        },
+      );
+
+  @override
+  Future<ReminderRepositoryUpdateReminderContentDTO> updateReminderContent({
+    required String reminderId,
+    required String? title,
+    required String? notes,
+    required BaseRepositoryBeforeCommitDelegate<
+            ReminderRepositoryCreateReminderDTO>
+        beforeCommitHandler,
+  }) =>
+      preventConnectionLeak<ReminderRepositoryUpdateReminderContentDTO>(
+        () async {
+          final tx = await prismaClient.$transaction.start();
+
+          try {
+            final existing = await tx.reminder.findUnique(
+              where: ReminderWhereUniqueInput(
+                id: reminderId,
+              ),
+              include: const ReminderInclude(
+                user: PrismaUnion.$1(false),
+              ),
+            );
+
+            if (existing == null) {
+              throw const UpdateReminderContentNotFoundException();
+            }
+
+            final updated = await tx.reminder.update(
+              where: ReminderWhereUniqueInput(
+                id: reminderId,
+              ),
+              data: PrismaUnion.$1(
+                ReminderUpdateInput(
+                  title: PrismaUnion.$1(title ?? existing.title ?? ''),
+                  notes: PrismaUnion.$1(notes ?? existing.notes ?? ''),
+                ),
+              ),
+              include: const ReminderInclude(
+                user: PrismaUnion.$1(false),
+              ),
+            );
+
+            if (updated == null) {
+              throw const UpdateReminderContentUpdateNotFoundException();
+            }
+
+            final result = (
+              id: updated.id!,
+              userId: updated.userId!,
+              title: updated.title!,
+              notes: updated.notes!,
+              remindAt: updated.remindAt,
+            );
+
+            await beforeCommitHandler(result);
+
+            await tx.$transaction.commit();
+
+            return result;
           } catch (_) {
             await tx.$transaction.rollback();
             rethrow;
