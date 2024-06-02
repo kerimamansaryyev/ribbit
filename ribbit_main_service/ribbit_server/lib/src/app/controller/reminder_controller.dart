@@ -8,6 +8,7 @@ import 'package:ribbit_server/src/app/controller/mixin/base_controller_mixin.dar
 import 'package:ribbit_server/src/app/service/reminder_service.dart';
 import 'package:ribbit_server/src/app/service/result/create_reminder_result.dart';
 import 'package:ribbit_server/src/app/service/result/delete_reminder_result.dart';
+import 'package:ribbit_server/src/app/service/result/reschedule_reminder_result.dart';
 import 'package:ribbit_server/src/app/service/result/update_reminder_content_result.dart';
 
 @singleton
@@ -90,6 +91,31 @@ final class ReminderController with BaseControllerMixin {
               ).toJson(),
             ),
           UpdateReminderContentNotFound() => _reminderNotFoundResponse(),
+        },
+      );
+
+  Future<Response> rescheduleReminder(RequestContext requestContext) =>
+      requestContext.handleAsJson<RescheduleReminderRequest>(
+        applyInputValidators: null,
+        parser: (_, data) => RescheduleReminderRequest.fromJson(data),
+        responseDispatcher: (requestContext, rescheduleReminderRequest) async =>
+            switch (await _reminderService.rescheduleReminder(
+          reminderId: rescheduleReminderRequest.reminderId,
+          newDate: rescheduleReminderRequest.newDate,
+        )) {
+          RescheduleReminderSucceeded(reminder: final reminder) =>
+            Response.json(
+              body: RescheduleReminderResponse(
+                reminder: (
+                  title: reminder.title,
+                  reminderId: reminder.id,
+                  userId: reminder.userId,
+                  notes: reminder.notes,
+                  remindAt: reminder.remindAt,
+                ),
+              ).toJson(),
+            ),
+          RescheduleReminderNotFound() => _reminderNotFoundResponse(),
         },
       );
 

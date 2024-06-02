@@ -4,7 +4,6 @@ import 'package:ribbit_server/src/app/controller/mixin/base_controller_mixin.dar
 import 'package:ribbit_server/src/app/controller/reminder_controller.dart';
 import 'package:ribbit_server/src/injectable_config/di_init.dart';
 
-//TODO: Change to the method from the controller
 RequestHandlerPerMethod? _handlerPerMethod;
 
 FutureOr<Response> onRequest(RequestContext context) =>
@@ -12,6 +11,6 @@ FutureOr<Response> onRequest(RequestContext context) =>
       context,
       handlers: _handlerPerMethod ??= {
         HttpMethod.patch:
-            appServiceLocator.get<ReminderController>().updateReminderContent,
+            appServiceLocator.get<ReminderController>().rescheduleReminder,
       },
     );
