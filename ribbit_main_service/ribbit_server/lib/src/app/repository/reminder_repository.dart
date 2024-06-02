@@ -17,6 +17,14 @@ typedef ReminderRepositoryUpdateReminderContentDTO = ({
   DateTime? remindAt,
 });
 
+typedef ReminderRepositoryRescheduleReminderDTO = ({
+  String id,
+  String userId,
+  String title,
+  String notes,
+  DateTime? remindAt,
+});
+
 typedef ReminderRepositoryBeforeCommitDelegate<T> = FutureOr<void> Function(
   T entity,
 );
@@ -36,6 +44,14 @@ abstract interface class ReminderRepository {
     required String reminderId,
     required String? title,
     required String? notes,
+    required BaseRepositoryBeforeCommitDelegate<
+            ReminderRepositoryCreateReminderDTO>
+        beforeCommitHandler,
+  });
+
+  Future<ReminderRepositoryRescheduleReminderDTO> rescheduleReminder({
+    required String reminderId,
+    required DateTime? newDate,
     required BaseRepositoryBeforeCommitDelegate<
             ReminderRepositoryCreateReminderDTO>
         beforeCommitHandler,

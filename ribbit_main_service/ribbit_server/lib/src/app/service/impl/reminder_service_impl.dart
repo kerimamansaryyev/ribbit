@@ -1,10 +1,12 @@
 import 'dart:math' as math;
 import 'package:injectable/injectable.dart';
 import 'package:ribbit_server/src/app/integration/ribbit_notification_scheduler_service_delegate.dart';
+import 'package:ribbit_server/src/app/repository/exception/reschedule_reminder_exception.dart';
 import 'package:ribbit_server/src/app/repository/exception/update_reminder_content_exception.dart';
 import 'package:ribbit_server/src/app/repository/reminder_repository.dart';
 import 'package:ribbit_server/src/app/service/reminder_service.dart';
 import 'package:ribbit_server/src/app/service/result/create_reminder_result.dart';
+import 'package:ribbit_server/src/app/service/result/reschedule_reminder_result.dart';
 import 'package:ribbit_server/src/app/service/result/update_reminder_content_result.dart';
 
 typedef _ScheduleReminderDTO = ({
@@ -66,8 +68,27 @@ final class ReminderServiceImpl implements ReminderService {
       switch (ex) {
         case UpdateReminderContentNotFoundException():
           return const UpdateReminderContentNotFound();
-        case UpdateReminderContentUpdateNotFoundException():
-          return const UpdateReminderContentLostUpdate();
+      }
+    }
+  }
+
+  @override
+  Future<RescheduleReminderResult> rescheduleReminder({
+    required String reminderId,
+    required DateTime? newDate,
+  }) async {
+    try {
+      return RescheduleReminderSucceeded(
+        reminder: await _reminderRepository.rescheduleReminder(
+          reminderId: reminderId,
+          newDate: newDate,
+          beforeCommitHandler: _scheduleReminder,
+        ),
+      );
+    } on RescheduleReminderException catch (ex) {
+      switch (ex) {
+        case RescheduleReminderNotFoundException():
+          return const RescheduleReminderNotFound();
       }
     }
   }

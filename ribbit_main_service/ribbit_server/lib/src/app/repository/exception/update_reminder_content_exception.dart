@@ -7,8 +7,3 @@ final class UpdateReminderContentNotFoundException
     implements UpdateReminderContentException {
   const UpdateReminderContentNotFoundException();
 }
-
-final class UpdateReminderContentUpdateNotFoundException
-    implements UpdateReminderContentException {
-  const UpdateReminderContentUpdateNotFoundException();
-}

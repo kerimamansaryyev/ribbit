@@ -15,8 +15,3 @@ final class UpdateReminderContentNotFound
     implements UpdateReminderContentResult {
   const UpdateReminderContentNotFound();
 }
-
-final class UpdateReminderContentLostUpdate
-    implements UpdateReminderContentResult {
-  const UpdateReminderContentLostUpdate();
-}

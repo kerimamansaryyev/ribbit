@@ -95,14 +95,6 @@ final class ReminderController with BaseControllerMixin {
                 ribbitServerErrorCode: RibbitServerErrorCode.reminderNotFound,
               ).toJson(),
             ),
-          UpdateReminderContentLostUpdate() => Response.json(
-              statusCode: HttpStatus.notFound,
-              body: const ErrorResponse(
-                message:
-                    'Could not update the reminder content, it might not exist',
-                ribbitServerErrorCode: RibbitServerErrorCode.reminderLostUpdate,
-              ).toJson(),
-            ),
         },
       );
 }
