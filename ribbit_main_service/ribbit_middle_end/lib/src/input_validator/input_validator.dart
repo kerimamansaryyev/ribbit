@@ -32,7 +32,7 @@ abstract final class InputValidators {
         input: inputDate,
       );
 
-  static InputValidator<String> firstNameValidator({
+  static InputValidator<String> userNameValidator({
     required String fieldName,
     required String input,
   }) =>

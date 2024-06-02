@@ -5,7 +5,7 @@ part 'login_user_response.g.dart';
 typedef LoginUserResponseUserDTO = ({
   String? userId,
   String? email,
-  String? firstName,
+  String? name,
 });
 
 @JsonSerializable()

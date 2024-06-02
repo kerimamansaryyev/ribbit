@@ -27,7 +27,7 @@ final class UserServiceImpl implements UserService {
   @override
   Future<CreateUserResult> createUser({
     required String email,
-    required String firstName,
+    required String name,
     required String password,
   }) async {
     try {
@@ -35,7 +35,7 @@ final class UserServiceImpl implements UserService {
         user: await _userRepository.createUser(
           email: email,
           password: password,
-          firstName: firstName,
+          name: name,
         ),
       );
     } on CreateUserException catch (ex) {

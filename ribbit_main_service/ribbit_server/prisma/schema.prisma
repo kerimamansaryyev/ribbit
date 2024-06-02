@@ -18,7 +18,7 @@ model User {
   id        String     @id @default(uuid())
   email     String     @unique
   password  String
-  firstName String
+  name String
   reminders Reminder[]
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
