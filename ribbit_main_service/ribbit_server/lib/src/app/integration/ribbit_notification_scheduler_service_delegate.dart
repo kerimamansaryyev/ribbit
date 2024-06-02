@@ -35,4 +35,7 @@ abstract interface class RibbitNotificationSchedulerServiceDelegate {
   Future<void> deleteUserDeviceToken({
     required String userId,
   });
+  Future<void> cancelReminder({
+    required String reminderId,
+  });
 }

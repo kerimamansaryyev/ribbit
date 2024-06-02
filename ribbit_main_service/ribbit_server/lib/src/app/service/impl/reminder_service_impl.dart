@@ -84,7 +84,9 @@ final class ReminderServiceImpl implements ReminderService {
         reminder: await _reminderRepository.rescheduleReminder(
           reminderId: reminderId,
           newDate: newDate,
-          beforeCommitHandler: _scheduleReminder,
+          beforeCommitHandler: newDate == null
+              ? (dto) => _cancelReminder(dto.id)
+              : _scheduleReminder,
         ),
       );
     } on RescheduleReminderException catch (ex) {
@@ -102,7 +104,7 @@ final class ReminderServiceImpl implements ReminderService {
     try {
       await _reminderRepository.deleteReminderById(
         reminderId: reminderId,
-        beforeCommitHandler: (_) {},
+        beforeCommitHandler: _cancelReminder,
       );
       return const DeleteReminderSucceeded();
     } on DeleteReminderByIdException catch (ex) {
@@ -112,6 +114,11 @@ final class ReminderServiceImpl implements ReminderService {
       }
     }
   }
+
+  Future<void> _cancelReminder(String reminderId) =>
+      _schedulerServiceDelegate.cancelReminder(
+        reminderId: reminderId,
+      );
 
   Future<void> _scheduleReminder(
     _ScheduleReminderDTO reminder,

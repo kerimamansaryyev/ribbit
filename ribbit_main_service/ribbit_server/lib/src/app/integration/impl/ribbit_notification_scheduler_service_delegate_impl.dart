@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:dotenv/dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
 import 'package:logger/logger.dart';
+import 'package:ribbit_server/src/app/entity/ribbit_notification_scheduler_cancel_reminder_request.dart';
 import 'package:ribbit_server/src/app/entity/ribbit_notification_scheduler_delete_user_device_token_request.dart';
 import 'package:ribbit_server/src/app/entity/ribbit_notification_scheduler_login_request.dart';
 import 'package:ribbit_server/src/app/entity/ribbit_notification_scheduler_schedule_reminder_request.dart';
@@ -24,13 +27,11 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
     this._reminderScheduleEndpoint,
     this._setUserDeviceTokenEndpoint,
     this._deleteUserDeviceTokenEndpoint,
+    this._cancelReminderEndpoint,
   ) {
     _afterInitialization();
   }
 
-  static const _maxServerResponseWaitDuration = Duration(
-    seconds: 10,
-  );
   static const _loginEndpointEnvKey =
       'RIBBIT_NOTIFICATION_SCHEDULER_LOGIN_API_ENDPOINT';
   static const _userNameEnvKey =
@@ -47,11 +48,15 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
   static const _deleteUserDeviceTokenEndpointEnvKey =
       'RIBBIT_NOTIFICATION_SCHEDULER_DELETE_USER_DEVICE_TOKEN_API_ENDPOINT';
 
+  static const _cancelReminderEndpointEnvKey =
+      'RIBBIT_NOTIFICATION_SCHEDULER_CANCEL_REMINDER_API_ENDPOINT';
+
   final HttpClientRequestDelegate _client;
   final String _schedulerAccessToken;
   final Uri _reminderScheduleEndpoint;
   final Uri _setUserDeviceTokenEndpoint;
   final Uri _deleteUserDeviceTokenEndpoint;
+  final Uri _cancelReminderEndpoint;
   final Logger _logger;
 
   void _afterInitialization() {
@@ -60,9 +65,7 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
     );
   }
 
-  @FactoryMethod(
-    preResolve: true,
-  )
+  @FactoryMethod(preResolve: true)
   static Future<RibbitNotificationSchedulerServiceDelegateImpl> init(
     HttpClientRequestDelegate requestDelegate,
     DotEnv env,
@@ -85,7 +88,8 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
       :setUserDeviceTokenEndpoint,
       :username,
       :password,
-      :deleteUserDeviceTokenEndpoint
+      :deleteUserDeviceTokenEndpoint,
+      :cancelReminderEndpoint
     ) = (
       loginEndpoint: getEnvOrThrow<Uri>(
         key: _loginEndpointEnvKey,
@@ -111,6 +115,10 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
         key: _deleteUserDeviceTokenEndpointEnvKey,
         parser: Uri.parse,
       ),
+      cancelReminderEndpoint: getEnvOrThrow<Uri>(
+        key: _cancelReminderEndpointEnvKey,
+        parser: Uri.parse,
+      ),
     );
 
     return requestDelegate<RibbitNotificationSchedulerServiceDelegateImpl>(
@@ -134,6 +142,7 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
         reminderScheduleEndpoint,
         setUserDeviceTokenEndpoint,
         deleteUserDeviceTokenEndpoint,
+        cancelReminderEndpoint,
       ),
     );
   }
@@ -145,10 +154,7 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
       _client<void>(
         responseMaker: (httpClient) => httpClient.post(
           _reminderScheduleEndpoint,
-          headers: {
-            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-            HttpHeaders.authorizationHeader: 'Bearer $_schedulerAccessToken',
-          },
+          headers: _headers,
           body: jsonEncode(
             RibbitNotificationSchedulerScheduleReminderRequest(
               reminderId: reminder.reminderId,
@@ -160,14 +166,7 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
           ),
         ),
         logSentData: reminder.toString(),
-        parser: (response, decoded) => response.statusCode != 200
-            ? throw Exception(
-                'Invalid response\n'
-                'Response: $decoded\n',
-              )
-            : null,
-      ).timeout(
-        _maxServerResponseWaitDuration,
+        parser: _expectSuccessResponse,
       );
 
   @override
@@ -178,10 +177,7 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
       _client<void>(
         responseMaker: (httpClient) => httpClient.post(
           _setUserDeviceTokenEndpoint,
-          headers: {
-            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-            HttpHeaders.authorizationHeader: 'Bearer $_schedulerAccessToken',
-          },
+          headers: _headers,
           body: jsonEncode(
             RibbitNotificationSchedulerSetUserDeviceTokenRequest(
               userId: userId,
@@ -189,34 +185,50 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
             ).toJson(),
           ),
         ),
-        parser: (response, decoded) => response.statusCode != 200
-            ? throw Exception(
-                'Invalid response\n'
-                'Response: $decoded\n',
-              )
-            : null,
+        parser: _expectSuccessResponse,
       );
 
   @override
-  Future<void> deleteUserDeviceToken({required String userId}) async =>
-      _client<void>(
+  Future<void> deleteUserDeviceToken({required String userId}) => _client<void>(
         responseMaker: (httpClient) => httpClient.delete(
           _deleteUserDeviceTokenEndpoint,
-          headers: {
-            HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
-            HttpHeaders.authorizationHeader: 'Bearer $_schedulerAccessToken',
-          },
+          headers: _headers,
           body: jsonEncode(
             RibbitNotificationSchedulerDeleteUserDeviceTokenRequest(
               userId: userId,
             ).toJson(),
           ),
         ),
-        parser: (response, decoded) => response.statusCode != 200
-            ? throw Exception(
-                'Invalid response\n'
-                'Response: $decoded\n',
-              )
-            : null,
+        parser: _expectSuccessResponse,
       );
+
+  @override
+  Future<void> cancelReminder({required String reminderId}) => _client<void>(
+        responseMaker: (httpClient) => httpClient.delete(
+          _cancelReminderEndpoint,
+          headers: _headers,
+          body: jsonEncode(
+            RibbitNotificationSchedulerCancelReminderRequest(
+              reminderId: reminderId,
+            ).toJson(),
+          ),
+        ),
+        parser: _expectSuccessResponse,
+      );
+
+  Map<String, String> get _headers => {
+        HttpHeaders.contentTypeHeader: ContentType.json.mimeType,
+        HttpHeaders.authorizationHeader: 'Bearer $_schedulerAccessToken',
+      };
+
+  static void _expectSuccessResponse(
+    http.Response response,
+    Map<String, dynamic> decoded,
+  ) =>
+      response.statusCode != 200
+          ? throw Exception(
+              'Invalid response\n'
+              'Response: $decoded\n',
+            )
+          : null;
 }
