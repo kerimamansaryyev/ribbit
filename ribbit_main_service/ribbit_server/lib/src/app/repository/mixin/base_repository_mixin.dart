@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
 import 'package:ribbit_server/src/app/repository/exception/expected_repository_exception.dart';
 import 'package:ribbit_server/src/prisma/generated/client.dart';
 
@@ -11,6 +12,7 @@ typedef BaseRepositoryBeforeCommitDelegate<T> = FutureOr<void> Function(
 mixin BaseRepositoryMixin {
   PrismaClient _prismaClient = PrismaClient();
 
+  @protected
   Future<T> preventConnectionLeak<T>(DatabaseAction<T> action) async {
     try {
       return await action();
@@ -23,6 +25,7 @@ mixin BaseRepositoryMixin {
     }
   }
 
+  @protected
   PrismaClient get prismaClient => _prismaClient;
 
   void _replaceClient() => _prismaClient = PrismaClient();

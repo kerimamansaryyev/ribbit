@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:logger/logger.dart';
+import 'package:meta/meta.dart';
 import 'package:ribbit_middle_end/ribbit_middle_end.dart';
 import 'package:ribbit_server/src/app/repository/user_repository.dart';
 import 'package:ribbit_server/src/app/service/user_service.dart';
@@ -56,6 +57,7 @@ abstract final class ErrorResponseFactory {
 }
 
 mixin BaseControllerMixin {
+  @protected
   UserRepositoryGetUserByIdDTO getCurrentUserByRequest(
     RequestContext context,
   ) =>
