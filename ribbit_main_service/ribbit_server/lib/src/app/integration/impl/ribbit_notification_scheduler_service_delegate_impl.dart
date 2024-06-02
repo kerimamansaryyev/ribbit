@@ -204,7 +204,7 @@ final class RibbitNotificationSchedulerServiceDelegateImpl
 
   @override
   Future<void> cancelReminder({required String reminderId}) => _client<void>(
-        responseMaker: (httpClient) => httpClient.delete(
+        responseMaker: (httpClient) => httpClient.post(
           _cancelReminderEndpoint,
           headers: _headers,
           body: jsonEncode(
