@@ -1,11 +1,13 @@
 import 'dart:math' as math;
 import 'package:injectable/injectable.dart';
 import 'package:ribbit_server/src/app/integration/ribbit_notification_scheduler_service_delegate.dart';
+import 'package:ribbit_server/src/app/repository/exception/delete_reminder_by_id_exception.dart';
 import 'package:ribbit_server/src/app/repository/exception/reschedule_reminder_exception.dart';
 import 'package:ribbit_server/src/app/repository/exception/update_reminder_content_exception.dart';
 import 'package:ribbit_server/src/app/repository/reminder_repository.dart';
 import 'package:ribbit_server/src/app/service/reminder_service.dart';
 import 'package:ribbit_server/src/app/service/result/create_reminder_result.dart';
+import 'package:ribbit_server/src/app/service/result/delete_reminder_result.dart';
 import 'package:ribbit_server/src/app/service/result/reschedule_reminder_result.dart';
 import 'package:ribbit_server/src/app/service/result/update_reminder_content_result.dart';
 
@@ -89,6 +91,24 @@ final class ReminderServiceImpl implements ReminderService {
       switch (ex) {
         case RescheduleReminderNotFoundException():
           return const RescheduleReminderNotFound();
+      }
+    }
+  }
+
+  @override
+  Future<DeleteReminderResult> deleteReminder({
+    required String reminderId,
+  }) async {
+    try {
+      await _reminderRepository.deleteReminderById(
+        reminderId: reminderId,
+        beforeCommitHandler: (_) {},
+      );
+      return const DeleteReminderSucceeded();
+    } on DeleteReminderByIdException catch (ex) {
+      switch (ex) {
+        case DeleteReminderByIdNotFoundException():
+          return const DeleteReminderNotFound();
       }
     }
   }

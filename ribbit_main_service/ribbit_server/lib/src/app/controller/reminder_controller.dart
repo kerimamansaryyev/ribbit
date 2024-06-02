@@ -7,6 +7,7 @@ import 'package:ribbit_server/src/app/controller/extension/rest_controller_exten
 import 'package:ribbit_server/src/app/controller/mixin/base_controller_mixin.dart';
 import 'package:ribbit_server/src/app/service/reminder_service.dart';
 import 'package:ribbit_server/src/app/service/result/create_reminder_result.dart';
+import 'package:ribbit_server/src/app/service/result/delete_reminder_result.dart';
 import 'package:ribbit_server/src/app/service/result/update_reminder_content_result.dart';
 
 @singleton
@@ -88,13 +89,32 @@ final class ReminderController with BaseControllerMixin {
                 ),
               ).toJson(),
             ),
-          UpdateReminderContentNotFound() => Response.json(
-              statusCode: HttpStatus.notFound,
-              body: const ErrorResponse(
-                message: 'Reminder does not exist',
-                ribbitServerErrorCode: RibbitServerErrorCode.reminderNotFound,
+          UpdateReminderContentNotFound() => _reminderNotFoundResponse(),
+        },
+      );
+
+  Future<Response> deleteReminder(RequestContext requestContext) =>
+      requestContext.handleAsJson<DeleteReminderRequest>(
+        applyInputValidators: null,
+        parser: (_, data) => DeleteReminderRequest.fromJson(data),
+        responseDispatcher: (requestContext, deleteReminderRequest) async =>
+            switch (await _reminderService.deleteReminder(
+          reminderId: deleteReminderRequest.reminderId,
+        )) {
+          DeleteReminderSucceeded() => Response.json(
+              body: const DeleteReminderResponse(
+                message: 'Reminder has successfully been deleted',
               ).toJson(),
             ),
+          DeleteReminderNotFound() => _reminderNotFoundResponse(),
         },
+      );
+
+  static Response _reminderNotFoundResponse() => Response.json(
+        statusCode: HttpStatus.notFound,
+        body: const ErrorResponse(
+          message: 'Reminder does not exist',
+          ribbitServerErrorCode: RibbitServerErrorCode.reminderNotFound,
+        ).toJson(),
       );
 }

@@ -56,4 +56,9 @@ abstract interface class ReminderRepository {
             ReminderRepositoryCreateReminderDTO>
         beforeCommitHandler,
   });
+
+  Future<void> deleteReminderById({
+    required String reminderId,
+    required BaseRepositoryBeforeCommitDelegate<String> beforeCommitHandler,
+  });
 }

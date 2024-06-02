@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:orm/orm.dart';
+import 'package:ribbit_server/src/app/repository/exception/delete_reminder_by_id_exception.dart';
 import 'package:ribbit_server/src/app/repository/exception/reschedule_reminder_exception.dart';
 import 'package:ribbit_server/src/app/repository/exception/update_reminder_content_exception.dart';
 import 'package:ribbit_server/src/app/repository/mixin/base_repository_mixin.dart';
@@ -183,6 +184,36 @@ final class ReminderRepositoryImpl
           await tx.$transaction.commit();
 
           return result;
+        } catch (_) {
+          await tx.$transaction.rollback();
+          rethrow;
+        }
+      });
+
+  @override
+  Future<void> deleteReminderById({
+    required String reminderId,
+    required BaseRepositoryBeforeCommitDelegate<String> beforeCommitHandler,
+  }) =>
+      preventConnectionLeak(() async {
+        final tx = await prismaClient.$transaction.start();
+        try {
+          final existing = await _getExistingReminderByIdWithoutUser(
+            dbDelegate: tx.reminder,
+            reminderId: reminderId,
+          );
+          final existingReminderId = existing?.id;
+          if (existingReminderId == null) {
+            throw const DeleteReminderByIdNotFoundException();
+          }
+
+          await tx.reminder.delete(
+            where: ReminderWhereUniqueInput(
+              id: existingReminderId,
+            ),
+          );
+          await beforeCommitHandler(existingReminderId);
+          await tx.$transaction.commit();
         } catch (_) {
           await tx.$transaction.rollback();
           rethrow;

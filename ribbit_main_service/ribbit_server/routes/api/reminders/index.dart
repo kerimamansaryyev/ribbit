@@ -12,5 +12,7 @@ FutureOr<Response> onRequest(RequestContext context) =>
       handlers: _handlerPerMethod ??= {
         HttpMethod.post:
             appServiceLocator.get<ReminderController>().createReminder,
+        HttpMethod.delete:
+            appServiceLocator.get<ReminderController>().deleteReminder,
       },
     );
