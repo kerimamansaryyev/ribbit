@@ -128,6 +128,16 @@ def create_app():
 
         return jsonify({'message': 'Notification was scheduled'}), 200
 
+    @app_inner.route('/api/cancel/reminder', methods=['POST'])
+    def cancel_reminder():
+        json_data = request.get_json(silent=True) or {}
+        reminder_id = json_data.get('reminder_id')
+        if not reminder_id:
+            return jsonify({'error': 'reminder_id is required'}), 400
+        reminder_id = str(reminder_id)
+        __cancel_schedule(reminder_id)
+        return jsonify({'message': 'Reminder has successfully been cancelled'}), 200
+
     def __cancel_schedule(reminder_id: str) -> None:
         if scheduler.get_job(reminder_id):
             scheduler.remove_job(reminder_id)
