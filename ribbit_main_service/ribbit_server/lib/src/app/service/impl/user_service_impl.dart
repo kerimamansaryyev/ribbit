@@ -6,9 +6,9 @@ import 'package:ribbit_server/src/app/repository/exception/delete_user_by_id_exc
 import 'package:ribbit_server/src/app/repository/exception/validate_user_credentials_exception.dart';
 import 'package:ribbit_server/src/app/repository/user_repository.dart';
 import 'package:ribbit_server/src/app/service/result/create_user_result.dart';
-import 'package:ribbit_server/src/app/service/result/delete_user_device_token_result.dart';
 import 'package:ribbit_server/src/app/service/result/delete_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/login_user_result.dart';
+import 'package:ribbit_server/src/app/service/result/logout_user_result.dart';
 import 'package:ribbit_server/src/app/service/result/set_user_device_token_result.dart';
 import 'package:ribbit_server/src/app/service/user_service.dart';
 
@@ -88,6 +88,9 @@ final class UserServiceImpl implements UserService {
   @override
   Future<DeleteUserResult> deleteUserById({required String userId}) async {
     try {
+      await _schedulerServiceDelegate.deleteUserDeviceToken(
+        userId: userId,
+      );
       await _userRepository.deleteUserById(
         userId: userId,
       );
@@ -113,12 +116,10 @@ final class UserServiceImpl implements UserService {
   }
 
   @override
-  Future<DeleteUserDeviceTokenResult> deleteUserDeviceToken({
-    required String userId,
-  }) async {
+  Future<LogoutUserResult> logoutUser({required String userId}) async {
     await _schedulerServiceDelegate.deleteUserDeviceToken(
       userId: userId,
     );
-    return const DeleteUserDeviceTokenSucceeded();
+    return const LogoutUserSucceeded();
   }
 }
