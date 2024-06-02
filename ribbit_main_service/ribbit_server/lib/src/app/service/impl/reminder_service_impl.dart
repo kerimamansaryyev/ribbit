@@ -28,6 +28,9 @@ final class ReminderServiceImpl implements ReminderService {
 
   static const _maxNotificationBodyLength = 100;
 
+  /// Need to cover the time that a user spent on the request itself
+  static const _requestTimeCoverageApproximation = Duration(seconds: 5);
+
   final ReminderRepository _reminderRepository;
   final RibbitNotificationSchedulerServiceDelegate _schedulerServiceDelegate;
 
@@ -132,7 +135,7 @@ final class ReminderServiceImpl implements ReminderService {
     return _schedulerServiceDelegate.scheduleReminder(
       RibbitNotificationSchedulerServiceDelegateScheduleReminderDTO(
         reminderId: reminder.id,
-        reminderDate: remindAt,
+        reminderDate: remindAt.add(_requestTimeCoverageApproximation),
         reminderTitle: reminder.title,
         reminderDescription: _reminderNotesTransform(reminder.notes),
         userId: reminder.userId,
