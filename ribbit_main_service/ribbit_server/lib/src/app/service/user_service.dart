@@ -10,7 +10,6 @@ abstract interface class UserService {
   /// Creating user and saving in repository
   Future<CreateUserResult> createUser({
     required String email,
-    required String name,
     required String password,
   });
 

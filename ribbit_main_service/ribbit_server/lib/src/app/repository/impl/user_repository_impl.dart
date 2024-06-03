@@ -20,7 +20,6 @@ final class UserRepositoryImpl
   Future<UserRepositoryCreateUserDTO> createUser({
     required String email,
     required String password,
-    required String name,
   }) =>
       preventConnectionLeak(() async {
         final tx = await prismaClient.$transaction.start();
@@ -43,7 +42,6 @@ final class UserRepositoryImpl
               UserCreateInput(
                 email: email,
                 password: hasString(password),
-                name: name,
               ),
             ),
           );
@@ -51,7 +49,6 @@ final class UserRepositoryImpl
           final result = (
             id: createdUser.id!,
             email: createdUser.email!,
-            name: createdUser.name!,
           );
 
           await tx.$transaction.commit();
@@ -90,7 +87,6 @@ final class UserRepositoryImpl
           return (
             id: user.id!,
             email: user.email!,
-            name: user.name!,
           );
         },
       );
@@ -117,7 +113,6 @@ final class UserRepositoryImpl
           return UserRepositoryGetUserByIdDTO(
             id: user.id!,
             email: user.email!,
-            name: user.name!,
           );
         },
       );

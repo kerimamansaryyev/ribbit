@@ -12,7 +12,6 @@ LoginUserResponse _$LoginUserResponseFromJson(Map<String, dynamic> json) =>
         json['user'],
         ($jsonValue) => (
           email: $jsonValue['email'] as String?,
-          name: $jsonValue['name'] as String?,
           userId: $jsonValue['userId'] as String?,
         ),
       ),
@@ -23,7 +22,6 @@ Map<String, dynamic> _$LoginUserResponseToJson(LoginUserResponse instance) =>
     <String, dynamic>{
       'user': <String, dynamic>{
         'email': instance.user.email,
-        'name': instance.user.name,
         'userId': instance.user.userId,
       },
       'accessToken': instance.accessToken,

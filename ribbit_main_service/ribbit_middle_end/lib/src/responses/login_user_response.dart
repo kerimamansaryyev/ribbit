@@ -5,7 +5,6 @@ part 'login_user_response.g.dart';
 typedef LoginUserResponseUserDTO = ({
   String? userId,
   String? email,
-  String? name,
 });
 
 @JsonSerializable()
@@ -17,6 +16,7 @@ class LoginUserResponse {
 
   factory LoginUserResponse.fromJson(Map<String, dynamic> json) =>
       _$LoginUserResponseFromJson(json);
+
   final LoginUserResponseUserDTO user;
   final String? accessToken;
 

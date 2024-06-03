@@ -35,10 +35,6 @@ final class UserController with BaseControllerMixin {
           fieldName: 'password',
           input: createUserRequest.password,
         ),
-        InputValidators.userNameValidator(
-          fieldName: 'name',
-          input: createUserRequest.name,
-        ),
       ],
       parser: (context, rawData) => CreateUserRequest.fromJson(
         rawData,
@@ -46,17 +42,14 @@ final class UserController with BaseControllerMixin {
       responseDispatcher: (context, createUserRequest) async {
         final (
           email,
-          name,
           password,
         ) = (
           createUserRequest.email,
-          createUserRequest.name,
           createUserRequest.password,
         );
 
         final result = await _userService.createUser(
           email: email,
-          name: name,
           password: password,
         );
 
@@ -71,7 +64,6 @@ final class UserController with BaseControllerMixin {
           CreateUserSuccessfullyCreated(user: final user) => Response.json(
               body: CreateUserResponse(
                 user: (
-                  name: user.name,
                   email: user.email,
                   userId: user.id,
                 ),
@@ -129,7 +121,6 @@ final class UserController with BaseControllerMixin {
               body: LoginUserResponse(
                 user: (
                   email: result.user.email,
-                  name: result.user.name,
                   userId: result.user.id,
                 ),
                 accessToken: result.accessToken,

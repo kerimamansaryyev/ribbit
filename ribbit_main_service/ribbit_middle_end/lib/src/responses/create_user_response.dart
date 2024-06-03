@@ -5,7 +5,6 @@ part 'create_user_response.g.dart';
 typedef CreateUserResponseUserDTO = ({
   String? userId,
   String? email,
-  String? name,
 });
 
 @JsonSerializable()

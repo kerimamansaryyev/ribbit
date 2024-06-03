@@ -31,15 +31,6 @@ abstract final class InputValidators {
         inputValidatorPredicate: inputValidationPredicate,
         input: inputDate,
       );
-
-  static InputValidator<String> userNameValidator({
-    required String fieldName,
-    required String input,
-  }) =>
-      InputValidator.requiredString(
-        fieldName,
-        input,
-      );
 }
 
 final class InputValidator<T> {
