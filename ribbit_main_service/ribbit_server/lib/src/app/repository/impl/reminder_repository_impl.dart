@@ -13,10 +13,6 @@ import 'package:ribbit_server/src/prisma/generated/prisma.dart';
 final class ReminderRepositoryImpl
     with BaseRepositoryMixin
     implements ReminderRepository {
-  static const _reminderRawTableName = 'Reminder';
-  static const _reminderRawRemindAtColumnName = 'remind_at';
-  static const _reminderRawIdColumnName = 'id';
-
   @override
   Future<ReminderRepositoryCreateReminderDTO> createReminder({
     required String userId,
@@ -147,20 +143,24 @@ final class ReminderRepositoryImpl
             dbDelegate: tx.reminder,
             reminderId: reminderId,
           );
+          final existingId = existing?.id;
 
-          if (existing == null) {
+          if (existing == null || existingId == null) {
             throw const RescheduleReminderNotFoundException();
           }
 
-          await _mySQLQueryToUpdateRemindAt(
-            reminderId: reminderId,
-            newDate: newDate,
-            intermediateClient: tx,
-          );
-
-          final updated = (await _getExistingReminderByIdWithoutUser(
-            dbDelegate: tx.reminder,
-            reminderId: reminderId,
+          final updated = (await tx.reminder.update(
+            where: ReminderWhereUniqueInput(
+              id: existingId,
+            ),
+            data: PrismaUnion.$1(
+              ReminderUpdateInput(
+                remindAt: switch (newDate) {
+                  DateTime() => PrismaUnion.$1(newDate),
+                  null => const PrismaUnion.$2(PrismaUnion.$2(PrismaNull())),
+                },
+              ),
+            ),
           ))!;
 
           final result = (
@@ -224,22 +224,5 @@ final class ReminderRepositoryImpl
         user: PrismaUnion.$1(false),
       ),
     );
-  }
-
-  /// Needed because there is an error in Dart Prisma ORM which makes it
-  /// impossible to set remind_at to null
-  static Future<void> _mySQLQueryToUpdateRemindAt({
-    required String reminderId,
-    required DateTime? newDate,
-    required PrismaClient intermediateClient,
-  }) async {
-    const query = 'UPDATE '
-        ' `$_reminderRawTableName` '
-        ' SET `$_reminderRawRemindAtColumnName` = ? '
-        ' WHERE `$_reminderRawIdColumnName` = ?';
-    await intermediateClient.$raw.execute(query, [
-      newDate,
-      reminderId,
-    ]);
   }
 }

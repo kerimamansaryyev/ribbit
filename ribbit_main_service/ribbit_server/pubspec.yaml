@@ -19,7 +19,7 @@ dependencies:
   json_serializable: 6.8.0
   logger: 2.3.0
   meta: 1.11.0
-  orm: 4.1.0
+  orm: 4.3.0
   ribbit_middle_end:
     path: ../ribbit_middle_end
 
