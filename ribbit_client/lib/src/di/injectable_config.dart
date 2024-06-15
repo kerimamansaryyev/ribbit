@@ -9,9 +9,4 @@ final serviceLocator = GetIt.instance;
   preferRelativeImports: true, // default
   asExtension: true, // default
 )
-Future<void> configureDependencies({
-  required Environment environment,
-}) async =>
-    serviceLocator.init(
-      environment: environment.name,
-    );
+Future<void> configureDependencies() async => serviceLocator.init();
