@@ -1,13 +1,13 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:injectable/injectable.dart';
 import 'package:retrofit/http.dart';
 import 'package:ribbit_middle_end/ribbit_middle_end.dart';
 
 part 'rest_client.g.dart';
 
 @RestApi(parser: Parser.FlutterCompute)
-abstract class RestClientBase {
-  factory RestClientBase(Dio dio) = _RestClientBase;
-
+abstract interface class RestClientBase {
   @POST('/create_user')
   Future<CreateUserResponse> createUser(
     CreateUserRequest request,
@@ -20,4 +20,14 @@ abstract class RestClientBase {
 
   @DELETE('/delete_own_user_account')
   Future<DeleteOwnUserAccountResponse> deleteOwnUserAccount();
+}
+
+@injectable
+base class BaseRestClient extends _RestClientBase {
+  BaseRestClient(
+    this.internalClient,
+  ) : super(internalClient);
+
+  @protected
+  final Dio internalClient;
 }
