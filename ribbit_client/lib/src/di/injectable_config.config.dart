@@ -39,7 +39,7 @@ extension GetItInjectableX on _i1.GetIt {
         _i3.InterceptedRestClient.internal(
           gh<_i4.Dio>(),
           param,
-        ));
+        )..useInterceptors());
     gh.factory<_i4.Dio>(() => thirdPartyInjectionModule.dioClient);
     gh.factory<_i5.TokenInterceptor>(() => _i5.TokenInterceptor());
     gh.singletonAsync<_i6.SharedPreferences>(

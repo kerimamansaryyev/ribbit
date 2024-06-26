@@ -12,6 +12,7 @@ typedef InterceptedRestClientFactoryParam = ({
 final class InterceptedRestClient extends BaseRestClient {
   InterceptedRestClient._(
     super.internalClient,
+    this._interceptors,
   );
 
   @factoryMethod
@@ -20,10 +21,8 @@ final class InterceptedRestClient extends BaseRestClient {
     @factoryParam InterceptedRestClientFactoryParam param,
   ) =>
       InterceptedRestClient._(
-        internalClient
-          ..interceptors.addAll(
-            param.interceptors,
-          ),
+        internalClient,
+        param.interceptors,
       );
 
   factory InterceptedRestClient.fromEnv(
@@ -43,4 +42,13 @@ final class InterceptedRestClient extends BaseRestClient {
           ],
         ),
       );
+
+  final List<Interceptor> _interceptors;
+
+  @postConstruct
+  void useInterceptors() {
+    internalClient
+      ..interceptors.clear()
+      ..interceptors.addAll(_interceptors);
+  }
 }
