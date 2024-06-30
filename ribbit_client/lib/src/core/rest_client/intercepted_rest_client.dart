@@ -1,54 +1,23 @@
 import 'package:dio/dio.dart';
-import 'package:injectable/injectable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:ribbit_client/src/core/rest_client/rest_client.dart';
-import 'package:ribbit_client/src/di/injectable_config.dart';
-import 'package:ribbit_client/src/features/auth/data/interceptor/token_interceptor.dart';
 
-typedef InterceptedRestClientFactoryParam = ({
-  List<Interceptor> interceptors,
-});
-
-@Injectable(order: -1)
-final class InterceptedRestClient extends BaseRestClient {
-  InterceptedRestClient._(
+abstract base class InterceptedRestClient extends BaseRestClient {
+  InterceptedRestClient(
     super.internalClient,
     this._interceptors,
   );
 
-  @factoryMethod
-  factory InterceptedRestClient.internal(
-    Dio internalClient,
-    @factoryParam InterceptedRestClientFactoryParam param,
-  ) =>
-      InterceptedRestClient._(
-        internalClient,
-        param.interceptors,
-      );
-
-  factory InterceptedRestClient.fromEnv(
-    InterceptedRestClientFactoryParam param,
-  ) =>
-      serviceLocator<InterceptedRestClient>(
-        param1: param,
-      );
-
-  factory InterceptedRestClient.fromEnvWithTokenInterceptorOnly(
-    TokenInterceptor tInterceptor,
-  ) =>
-      InterceptedRestClient.fromEnv(
-        (
-          interceptors: [
-            tInterceptor,
-          ],
-        ),
-      );
-
   final List<Interceptor> _interceptors;
 
-  @postConstruct
+  @protected
+  @mustCallSuper
   void useInterceptors() {
     internalClient
       ..interceptors.clear()
       ..interceptors.addAll(_interceptors);
   }
+
+  @visibleForTesting
+  Interceptors get interceptorsTest => internalClient.interceptors;
 }
