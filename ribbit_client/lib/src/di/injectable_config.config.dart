@@ -13,7 +13,7 @@ import 'package:get_it/get_it.dart' as _i1;
 import 'package:injectable/injectable.dart' as _i2;
 import 'package:shared_preferences/shared_preferences.dart' as _i5;
 
-import '../core/blocs/global_inter_layer_conversation_bloc.dart' as _i6;
+import '../core/bloc/global_inter_layer_conversation_bloc.dart' as _i6;
 import '../core/rest_client/rest_client.dart' as _i7;
 import '../features/auth/data/client/auth_guarded_rest_client.dart' as _i8;
 import '../features/auth/data/interceptor/token_interceptor.dart' as _i4;
